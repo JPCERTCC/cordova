@@ -1,0 +1,16 @@
+== サーバ
+=== 脆弱性の傾向
+
+アプリが使う HTML や JavaScript をサーバに設置して提供する場合、通常の Web アプリと同様に、サーバ側の脆弱性の影響を受ける可能性がある。
+
+たとえば、サーバに XSS 脆弱性がある場合、アプリのブリッジが悪用される危険性がある。第三者のサーバから配信される広告を、iframe を通じてアプリの画面の一部に組み込んでいる場合、広告コンテンツを通じてブリッジを悪用される恐れがある。
+
+実際、閲覧したユーザをマルウェアに感染させる悪質な広告(マルバタイジング)の報告は増加しており、2014年には、Yahooのページに組み込まれている広告の配信元が乗っ取られ、マルウェアをインストールしようとしたインシデントも報告されている。footnote:[Clients visiting yahoo.com received advertisements served by ads.yahoo.com. Some of the advertisements are malicious. Those malicious advertisements are iframes hosted on the following domains (http://blog.fox-it.com/2014/01/03/malicious-advertisements-served-via-yahoo/)]
+
+2012年には、Android スマートフォンを狙った攻撃も報告されている。footnote:[Android を狙うトロイの木馬と連動した Web サイトインジェクション攻撃 (http://www.symantec.com/connect/blogs/android-web)]
+
+Cordovaアプリが普及した場合、これらが標的となり、悪意のある JavaScript を含む広告を介して、ブリッジを悪用する可能性も考えられる。
+
+=== 対策
+
+Webアプリのセキュアコーディングや脆弱性検査などを行うとともに、信頼できないコンテンツを iframe で表示しないことも脅威の低減に役に立つ。

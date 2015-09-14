@@ -1,0 +1,121 @@
+[appendix]
+== Appendix
+=== Android 版 Cordova の既知の脆弱性
+==== ホワイトリスト保護メカニズムを回避される脆弱性 (CVE-2012-6637)
+
+脆弱性の原因は、ホワイトリストに基づくアクセス先のオリジンの検証が、全文一致ではなく前方一致で行われていた点にあった。オリジンの検証は次のような正規表現を使って行われていた。footnote:[3.1.0向けのコミットで、whiteList.add(Pattern.compile("^https?://(.*\.)?" + origin))による前方一致のURLの評価を廃止し、代わりにURLをscheme, host, port, pathに分解し、それぞれを個別に評価するように変更された (https://github.com/apache/cordova-android/commit/463c7b50277dda5978e2d5e1f1e296ab9e6a6e82)]
+
+ whiteList.add(Pattern.compile("^https?://(.*\\.)?" + origin));
+
+ホワイトリストで許可されたオリジンを先頭に含む任意の URL が開かれてしまう。たとえば、ホワイトリストで "trusted.com" に対するアクセスが許可されている場合、"trusted.com" を前方に含む "trusted.com.evil.com" が許可されてしまう。
+
+この脆弱性は Cordova 3.1.0 で修正されている。URL をスキーム、ホスト名、ポート番号、パス名といった要素に分解し、それぞれの要素をホワイトリストと比較するようホワイトリストの判定ロジックが変更されている。footnote:[CVE によれば、この脆弱性はバージョン 3.3.0 およびそれ以前の Cordova に影響する。しかし、Git のコミットログによると、バージョン 3.1.0 でホワイトリストの処理が現行のロジックに修正されており、正しくは、バージョン 3.1.0 未満のみに影響すると考えられる。]
+
+==== イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1881)
+
+JVN iPedia には脆弱性の概要が次のように書かれている。
+
+[quote, http://jvndb.jvn.jp/ja/contents/2014/JVNDB-2014-001550.html]
+第三者により、IFRAME スクリプトの実行を利用され、同期を補正するための代替として OnJsPrompt ハンドラの戻り値を一定期間待機する巧妙に細工されたライブラリのクローンを介して、イベントベースのブリッジのデバイスリソース制限を回避される
+
+CVE-2014-1883 の脆弱性を悪用することでホワイトリストの制限を回避してiframe内で開かれた信頼できないリソースが、イベントベースのブリッジ (PROMPT) のホワイトリストの制限を受けずに、ネイティブ側の初期化完了タイミングを知ることのできる点が脆弱性として指摘されていると考えられる。footnote:[http://openwall.com/lists/oss-security/2014/02/07/9]
+
+Cordova のブリッジは、ネイティブ側の初期化完了を示す "deviceready" イベントを受けた後、JavaScript から利用可能になる。
+iframe 内で開かれた信頼できないリソースは、deviceready イベントをネイティブ側から受け取ることができないため、ブリッジが利用可能となったタイミングを知ることができない。しかし、iframe 内のリソースは、deviceready イベントを受け取らなくても、一定時間待った後であればブリッジを利用できるようになる。この点が脆弱性として指摘されていると考えられる。
+
+攻撃者が実際にブリッジを使用するには、あらかじめ CVE-2014-1883 の脆弱性を用いて、ホワイトリストでは許されていない悪意のあるページを iframe 内で開く必要がある。 また、本脆弱性によりブリッジを利用できるタイミングを知ったとしても、ブリッジを呼び出した際にはホワイトリストに基づくアクセス元の検証が行われるため、CVE-2014-1882 の脆弱性を用いて、この検証を回避する必要がある。
+
+2015年2月現在、この脆弱性は修正されていないが、CVE-2014-1882を修正することにより、信頼されないリソースにブリッジが悪用されることは阻止される。
+
+==== イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1882)
+
+Webアプリ側からブリッジが呼び出されるときに行われる、ホワイトリストに基づくアクセス元の検証を回避して、信頼されないリソースからブリッジを利用できる脆弱性である。
+
+脆弱性が作り込まれた原因は2つある。
+
+1つ目の原因は、報告された当時 Cordovaがサポートしていた3種類の JsToNativeBridge のうち、PROMPT 以外のブリッジではホワイトリストによる検証が行われていなかったことにある。
+
+2つ目の原因は、iframe 内で開かれた信頼されないリソースから、ブリッジを切り替える関数 (setJsToNativeBridge) を呼び出すことで、任意のブリッジを使用するように指定することができた点である。
+
+具体的には、JS_OBJECT と LOCATION_CHANGE と呼ばれる2つのブリッジで、ホワイトリストによる検証が行われていなかったことが問題である。(ただし、LOCATION_CHANGE ブリッジはデフォルトで無効化されている。)
+
+攻撃者は、CVE-2014-1883 の脆弱性を用いることで、iframe 内で開いたページから JS_OBJECT と LOCATION_CHANGE のいずれかのブリッジに切り替えることで、ブリッジの機能を利用することができた。
+
+本脆弱性の修正は、複数のリリースに渡って行われた。
+
+* バージョン2.6.0: CVE-2014-1883が修正され、信頼されないリソースがiframe内で読み込まれないよう対策
+** しかし、この対策は Android 3.0 (API 11) から搭載された機能を利用するため、Android 2.x 系の端末では、引き続き、信頼されないリソースが読み込まれる恐れがあった
+
+* バージョン3.5.0: Android 4.2未満の Android では JS_OBJECT ブリッジが無効化された
+** これにより、Android 2.x 系の端末で iframe 内に信頼されないリソースがロードされた場合も、JS_OBJECT 経由でのネイティブ機能へのアクセスはできなくなった
+
+* バージョン3.6.0: 元々デフォルトでは無効化されていた LOCATION_CHANGE ブリッジが、ソースコードから削除された
+
+==== デバイスリソース制限を回避される脆弱性 (CVE-2014-1883)
+
+ホワイトリストによるリソースの読込み制限を回避して、iframe や XMLHttpRequest により、信頼されないリソースを参照できる脆弱性である。
+
+脆弱性が作り込まれた原因は、Cordova 2.6.0 未満において、リソースの読み込み制限を WebViewClient#shouldOverrideUrlLoading で実装していたため、iframe や XMLHttpRequest によるネットワークアクセスを検知できなかったことにある。
+
+バージョン2.6.0 では、WebViewClient#shouldInterceptRequest を用いて検証を行うよう修正されているがfootnote:[https://github.com/apache/cordova-android/commit/409b9af3980e136226e78511222885767d0b7253]、 WebViewClient#shouldInterceptRequest は、Android3.0 (API11) で導入されたため、Android 2.x 系の端末では対策が有効ではない。
+
+==== スタートページを変更される脆弱性 (CVE-2014-3500)
+
+他のアプリから javascript URL を含む Intent を送ることで、任意の JavaScript を実行させることのできる脆弱性(クロスアプリケーションスクリプティング(XAS)脆弱性)である。footnote:[CVE-2014-3500: Cordova cross-application scripting via Android intent URLs (http://cordova.apache.org/announcements/2014/08/04/android-351.html)]
+
+脆弱性が作り込まれた原因は、バージョン 3.5.1 未満の CordovaWebView に、Activity の起動に使われた Intent に含まれる "url"、または "errorurl" というキーの値を開く処理が含まれていたためである。この脆弱性を報告した IBM の技術者は以下のように説明している。
+
+[quote, http://securityintelligence.com/apache-cordova-phonegap-vulnerability-android-banking-apps/#.VNZ0r1WsV5E]
+First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String url, int time) consume the Intent's 'url' extra parameter instead of the 'url' argument. The first method does that only if the argument's URI scheme is not JavaScript and the URI is not 'about:blank'. Therefore, if the 'url' extra parameter can be influenced by the attacker (which is often the case), the WebView's URL can be controlled. The second issue relates to the 'errorurl' Intent extra parameter and is very similar despite the fact that it is used only if there is an error when loading the original URL (such as connectivity issues).
+
+外部のアプリまたはブラウザから Cordova を利用するアプリに対して、javascript スキームの Intent を送ることにより、WebView上で任意の JavaScript を実行させることができる。
+
+2014年3月、ブラウザアプリで開かれたWebコンテンツから他のアプリに対して明示的 Intent を送る攻撃手法が、三井物産セキュアディレクション(MBSD)が公開するホワイトペーパーで明らかにされている。footnote:[http://www.mbsd.jp/Whitepaper/IntentScheme.pdf]
+
+ホワイトペーパーの概要は次の通りである。
+
+* Androidでは、標準ブラウザからは BROWSABLE カテゴリを含む暗黙的インテントしか送信できない仕様になっており、本来は明示的インテントを送ることができない
+
+* MBSD の調査によると、Android 4.3 以下の標準ブラウザにおいて、intent: スキームの URL のパラメータに Selector Intentを指定することで、明示的インテントを送信することができた
+
+* これにより、ユーザがAndroid 4.3 以下の標準ブラウザで悪意のあるサイトを閲覧しただけで、本脆弱性に対する攻撃が行われる可能性がある
+
+バージョン3.5.1に含まれる2件のコミットによって、Intent で渡された URL がホワイトリストに含まれる場合のみ開くように修正されている
+
+* Intentの "url" キーを参照する処理を削除 footnote:[https://github.com/apache/cordova-android/commit/b0b628ffc24bdd952e86908cf6cb4064b6f3c405]
+
+* Intentの "errorurl" キーを参照する処理を、config.xmlの "errorurl" を参照する処理に変更 footnote:[(https://github.com/apache/cordova-android/commit/6f21a96238a298a94cb66bfa4f2a969f768cea69]
+
+==== HTTP のホワイトリストを回避される脆弱性 (CVE-2014-3501)
+
+ホワイトリストによるリソース読込みの制限を回避して、WebSocket により、信頼されないリソースを参照できる脆弱性である。footnote:[CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (http://cordova.apache.org/announcements/2014/08/04/android-351.html)]
+
+原因は、Android の WebViewClient#shouldInterceptRequest API が WebSocket の接続リクエストを捕捉できないことにある。Cordova は この API を用いて、WebView 上で HTTP リクエストが発生するたびに、ホワイトリストに基づいてリソース読み込みの制限をかけている。この API では WebSocket の接続リクエストを捕捉できないため、Cordova のホワイトリストに基づく制限が機能しない。
+
+この API は、Android の制限であり、Android 5.0.1時点でもまだ対策されていないことを確認した。
+
+バージョン3.5.1未満で発見された XAS脆弱性 (CVE-2014-3500) と組み合わせることで、WebView に注入された悪意のある JavaScriptが、ホワイトリストを回避し、対象のアプリが持つ機密データを WebSocket を通じて、外部のサーバへ持ち出すことができる可能性が指摘されている。footnote:[   http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework]
+
+報告者は、この脆弱性の対策として、アプリ開発者がCSPを用いてWebSocketの通信を制限することを提案している。footnote:[    https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-_Remote_Exploitation_of_Cordova_for_Android_-_David_Kaplan_-_Roee_Hay.pdf]
+
+Android 4.4以降の WebView には http://www.w3.org/TR/CSP/#connect-src[Content Security Policy] が実装されているため、CSP の http://www.w3.org/TR/CSP/#directive-connect-src[connect-src] ディレクティブにより、WebSocket の接続先を制限することができる。ただし、connect-src を指定した場合、WebSocket だけでなく、XMLHttpRequest や EventSource(Server Sent Event) などの非同期通信の接続先も制限される。
+
+==== 任意のアプリケーションを起動される脆弱性 (CVE-2014-3502)
+
+CordovaではハンドルできないスキームのURLに対する遷移を利用して、アプリ内の情報を他のアプリに持ち出すことのできる脆弱性である。footnote:[CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (http://cordova.apache.org/announcements/2014/08/04/android-351.html)]
+
+バージョン3.6.0 未満では、Cordova が処理できない URL スキームへのリンクを検出した場合、標準のビューアに指定されている外部のアプリが起動され当該の URL を開いてしまう。たとえば、mailto: や geo: スキームのURLにアクセスした場合、外部のメールアプリや地図アプリが開かれる。
+
+バージョン3.5.1未満で発見されたXAS脆弱性 (CVE-2014-3500) と組み合わせることにより、WebView に注入された悪意のあるJavaScript が、特定のスキームを含む暗黙的 Intent を受け取る他のアプリを経由して、Cordova アプリの機密情報を盗み出すことができる可能性が指摘されている。footnote:[    http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework]
+
+バージョン3.6.0では、 http://cordova.apache.org/docs/en/4.0.0/guide_appdev_whitelist_index.md.html[External Application Whitelist] と呼ばれる新しいホワイトリストがサポートされ、Cordova が処理できないURLスキームを外部アプリで開くかどうかを制御できるようになった。初期状態では、Cordova が処理できない全ての URL スキームのリンクが無効化されるが、開発者が External Application Whitelist の設定を緩和した場合、本脆弱性と同じ現象が発生する可能性はある。
+
+==== 外部から preferences を悪用可能な脆弱性 (CVE-2015-1835)
+
+Trend Micro の研究者 Seven Shen が発見した脆弱性。　footnote:[http://blog.trendmicro.com/trendlabs-security-intelligence/trend-micro-discovers-apache-vulnerability-that-allows-one-click-modification-of-android-apps/]
+
+Cordova においては、preferences は Cordova フレームワークの config.xml で明示的に設定されるか、明示的に設定されず初期値が利用されるが、多くのアプリ開発者は明示的な設定を行っていない。アプリは intent bundle を読み込み、CordovaActivitiy における初期化の過程で intent bundle を読み込み、preference にコピーするが、config.xml で値が設定されていない場合、preference の値は bundle からコピーされる。
+
+攻撃者は悪意ある intent bundle を CordovaActivity に注入することで、アプリの preferece を書き換えることでアプリの動作を改変したり、アプリを終了させることが可能。
+
+Android　版 Cordova の 4.0.1 までの全てのバージョンが影響を受ける。4.0.2 および 3.7.2 で修正されている。footnote:[https://cordova.apache.org/announcements/2015/05/26/android-402.html]

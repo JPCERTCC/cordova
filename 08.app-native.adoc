@@ -1,0 +1,18 @@
+## アプリ固有コード (ネイティブ)
+### 脆弱性の傾向
+開発者が使いたい機能を実現するプラグインが存在しない場合、ネイティブコードを使った実装を行い、プラットフォーム固有の脆弱性を作り込んでしまう可能性がある。
+
+2014年第3四半期(7月〜9月)にIPAに届け出のあった Android 関連の脆弱性の84%は「SSL証明書を適切に検証しない脆弱性」であった。footnote:[http://www.ipa.go.jp/security/vuln/report/JVNiPedia2014q3.html] また、2012年には Androidアプリの脆弱性に関する届出の7割が「アクセス制御の不備」に関するものであった。footnote:[https://www.ipa.go.jp/about/technicalwatch/20120613.html] こうしたネイティブアプリの脆弱性が Cordova アプリに作り込まれる可能性が考えられる。
+
+### 対策
+対策としては、開発者が各プラットフォームのセキュアコーディングの作法を習得し実践することが必要となる。
+
+Androidでは、JSSECの「 https://www.jssec.org/report/securecoding.html[Androidアプリのセキュア設計・セキュアコーディングガイド]」が良い学習教材である。
+
+iOSでは、Apple が作成した https://developer.apple.com/library/ios/documentation/Security/Conceptual/SecureCodingGuide/SecurityDevelopmentChecklists/SecurityDevelopmentChecklists.html[Security Development Checklists] が公開されているが、API の誤用とそれによって作り込まれる脆弱性のような詳細な解説は無い。
+
+AndroidにおけるAPIの誤用に起因する脆弱性の一部、たとえば「アクセス制御の不備」は、Android SDK に含まれる https://android.googlesource.com/platform/tools/base/+/refs/heads/master/lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/SecurityDetector.java[Android Lint] を使って検出することができる。
+
+第三者が作成したライブラリを利用する場合、使用するライブラリの脆弱性情報を継続的にモニタリングし、脆弱性が見つかった場合は、脆弱性が修正されたバージョンのライブラリを組み込んでアプリをアップデートする必要がある。
+
+iOS では、アプリに組み込んだ広告モジュールが iOS の非公開 API である NSURLRequest の allowsAnyHTTPSCertificateForHost メソッドを実装していたため、アプリ全体の HTTPS 通信が証明書を確認しない状況となる例があった。利用する広告モジュールの脆弱性情報もモニタリングすべきである。

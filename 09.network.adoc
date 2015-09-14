@@ -1,0 +1,55 @@
+== ネットワーク
+=== 脆弱性の傾向
+
+Cordova アプリでは、通信先がホワイトリストで許可されていれば、ネットワークを通じて取得した HTML や JavaScript からブリッジを利用することが可能である。アプリが HTML などのリソースを HTTP で取得している場合や、アプリのサーバ証明書検証のコードに不備がある場合、MITM 攻撃によりリソースを改ざんされ、ブリッジを悪用される恐れがある。
+
+https://www.cs.utexas.edu/~suman/publications/suman_ndss14.pdf[テキサス大学による調査]では、7167 個の Cordova を用いた Android アプリを動的解析した結果、約46% にあたる 3328 アプリが HTTP を使ってリソースを取得していたことを明らかにしている。
+
+2014年には、OpenSSLのHeeartbleed やCCS Injection、SSL3 の POODLE など、SSL/TLSの機密性を脅かす脆弱性が次々と発見されたが、Android や iOS 標準の WebView の中には、これらの脆弱性の影響を受けるものがあった。
+
+また、2011年以降、 http://cromwell-intl.com/security/pki-failures.html[ルートCAに対するハッキングや証明書の誤発行の事故]が報告されており、PKI の運用上の問題に起因する脅威も存在する。
+
+=== 対策
+次の対策が考えられる。
+
+.ネットワークから取得する必要の無いリソースは、アプリのパッケージ内に含め、ローカルのファイルシステムを参照する
+
+ただし、Android 版の Cordova は、ローカルに保存された HTML ファイルから他の任意のローカルファイルを参照できるため、アプリに XSS 脆弱性があると、端末のファイルを盗まれる恐れがある。footnote:[WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している。 (https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860)]
+
+.ネットワークからリソースを取得する際は、HTTP でなく HTTPS を利用する
+
+W3C の Web Application Security Working Group では、ネットワークから参照されるリソースを次の2種類に分類している。footnote:[https://w3c.github.io/webappsec/specs/mixedcontent/#categories]
+
+* Blockable Content : 改ざんされた際のページに対する影響が広範囲に及ぶもの (HTMLやJavaScriptなど)
+* Optionally-blockable Content : 画像やメディアファイルのように改ざんされた際の影響が局所的となるもの
+
+全てのリソースを HTTPS で取得することが困難である場合にも、最低限 Blockable Content だけは HTTPS で取得することを検討すべきである。
+
+.HTTPS通信時のサーバ証明書検証を適切に行う
+
+Android　では、WebView がサーバ証明書の検証エラーを検出した場合に WebViewClient#onReceivedSslError ハンドラが呼ばれる。アプリ開発者がこのハンドラの中で SslErrorHandler.proceed() を呼ぶと、検証エラーを無視して通信が続行される。footnote:[As can be seen in this listing, the method gets an SslErrorHandler instance named paramSslErrorHandler. The handler calls proceed(), which will ignore any certificate error and the connection will be created. Due to this, any invalid certificate will also be accepted, even the attacker's certificate rendering the app vulnerable to man in the middle attacks. Since this issue exists within a login component, it is possible to steal Microsoft account login credentials, which is usually an Outlook.com email address and password. (https://www.securify.nl/advisory/SFY20140403/outlook_com_for_android_fails_to_validate_server_certificates.html)]
+
+iOSでは, NSURLConnectionDelegateのconnection:didReceiveAuthenticationChallenge: メソッドの中で          https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Protocols/NSURLAuthenticationChallengeSender_Protocol/index.html#//apple_ref/occ/intfm/NSURLAuthenticationChallengeSender/continueWithoutCredentialForAuthenticationChallenge:[continueWithoutCredentialForAuthenticationChallenge] メソッドを実行することで、UIWebView での証明書検証が無効化されてしまう。
+
+.HTTP Strict Transport Security (HSTS) を使用する
+
+Android 4.4 以降の WebView は HSTS をサポートしているため、これにより意図せず HTTP で通信してしまうリスクを軽減できる。footnote:[http://caniuse.com/#feat=stricttransportsecurity]
+
+iOS の UIWebView も iOS 7以降であれば標準で HSTS をサポートしている。
+
+Android 5.0 以降の WebView は Mixed Content に対応しており、HTTPS のページから HTTP のリソースを読み込まないように保護することができる。footnote:[http://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode%28int%29]
+
+.Crosswalk を使用する
+
+Android 4.0 以降の場合、WebView の代わりに Crosswalk を使うことも対策となる。Crosswalk の Beta版は Chrome40 をベースとしており、HSTS、HPKP に対応し、SSL3 が無効化されている。
+
+.公開鍵ピンニングを使用する
+
+Android 5.0 の WebView および Crosswalk は、Android 端末のシステムレベルの証明書ピンニング (X509TrustManagerExtensions) をサポートしている。footnote:[Chromium ベースの WebView は、端末のバージョンが Build.VERSIONCODES.JELLYBEAN_MR1 以降であれば、X509TrustManagerExtensions を利用している。(http://tools.oesf.biz/android-5.0.0_r2.0/xref/external/chromium_org/net/android/java/src/org/chromium/net/X509Util.java#105)] footnote:[Crosswalk も同様に、X509TrustManagerExtensions を用いて、Android が提供する Certificate Pinning を採用している。(https://github.com/crosswalk-project/chromium-crosswalk/blob/crosswalk-10/38.0.2125.66/net/android/java/src/org/chromium/net/X509Util.java#L105)] footnote:[X509TrustManagerExtensions -- The checkServerTrusted method allows callers to perform additional verification of certificate chains after they have been successfully verified by the platform. (http://developer.android.com/reference/android/net/http/X509TrustManagerExtensions.html)]
+
+ピンの登録には、UPDATE_PINS という Broadcast を利用する必要があり、これは OEM のプリインストールアプリや Platform署名が施されたアプリのみが実行できる。
+
+[quote, http://nelenkov.blogspot.jp/2012/12/certificate-pinning-in-android-42.html]
+Certifiate pinning in Android 4.2 -- First off, at the time of this writing, Google-managed (on Nexus devices) JB 4.2 installations have an empty pin list (i.e., the pins file doesn't exist). Thus certificate pinning on Android has not been widely deployed yet. -- Updating it is triggered by a broadcast (android.intent.action.UPDATE_PINS) that contains the new pins in it's extras.
+
+iOSでは, UIWebView で公開鍵ピンニングを使用するための汎用 API は存在しないため Cordova で公開鍵ピンニングを実現することは困難である。UIWebView を介さない通信においては、NSURLConnectionDelegate の https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#iOS[ connection:didReceiveAuthenticationChallenge:] メソッドを通じて公開鍵ピンニングを実装することができる。UIWebView に公開鍵ピンニングの機能を組み込むことのできる商用のライブラリやプラグインは存在する。footnote:[http://www.advtools.com/Products/ADVcertificator.html] footnote:[http://plugins.cordova.io/#/package/com.synconset.cordovahttp] また、iOS 版 Chrome は、UIWebView を利用しているが、独自のネットワークライブラリを用いて HPKP を実装している。

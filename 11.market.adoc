@@ -1,0 +1,118 @@
+== Cordovaアプリの実態調査
+=== 調査概要
+
+この章では Google Play に公開されている Android アプリを対象に行った Cordova アプリの実態調査の結果を報告する。
+
+調査対象のアプリは次の基準で選定した。
+
+* Google Play の27カテゴリーの、それぞれ上位500位の無料アプリを対象とする
+* ランキングは 2015年1月20日時点のものを使用する
+* 対応機種は Nexus 5 とする
+
+これらの基準に合致するアプリの数は、13488個であった。次にこれらのアプリから Cordova アプリを抽出する必要があるが、APK ファイルの classes.dex に、org.apache.cordova.CordovaWebView クラスが含まれるものを Cordova アプリであると判定した。次のような判定方法も検討したが、それぞれ課題が存在するため採用を見送った。
+
+* 代案1. APK の assets ディレクトリ配下に cordova.js ファイルが存在するか否か
+** JavaScript をサーバからダウンロードして読み込むアプリの場合、APK 中に cordova.js が存在しないため、そのようなアプリを見落としうると判断し、不採用とした
+* 代案2. APK の res/xml ディレクトリ配下に config.xml が存在するか否か
+** Cordova のバージョンによっては config.xml ファイルが存在しないため、ファイルが存在しない特定のバージョンを利用するCordova アプリを見落としうると判断し、不採用とした
+
+Cordova アプリとして抽出されたアプリの数の Google Play のカテゴリごとの内訳を Table 3 に示す。多かったのは、EDUCATION、ENTERTAINMENT、FINANCE、TRAVEL_AND_LOCALであった。
+
+.カテゴリ毎の Cordova アプリ数
+[width="35%", options="header"]
+|===========================
+|カテゴリ             | 件数
+|ENTERTAINMENT      |   40
+|EDUCATION          |   36
+|TRAVEL_AND_LOCAL   |   30
+|FINANCE            |   27
+|BUSINESS           |   26
+|SOCIAL             |   22
+|COMICS             |   21
+|TRANSPORTATION     |   18
+|SPORTS             |   18
+|MEDICAL            |   17
+|SHOPPING           |   15
+|NEWS_AND_MAGAZINE  |   14
+|BOOKS_AND_REFERENCE|   14
+|LIFESTYLE          |   12
+|WEATHER            |    9
+|HEALTH_AND_FITNESS |    9
+|LIBRARIES_AND_DEMO |    7
+|MUSIC_AND_AUDIO    |    6
+|COMMUNICATION      |    6
+|PRODUCTIVITY       |    5
+|PHOTOGRAPHY        |    3
+|MEDIA_AND_VIDEO    |    3
+|GAME               |    2
+|APP_WIDGETS        |    1
+|TOOLS              |    0
+|PERSONALIZATION    |    0
+|APP_WALLPAPER      |    0
+|===========================
+
+
+調査は、取得した APK ファイルに対する静的解析を依っており、端末上で実際にアプリを動作させる動的解析は行っていない。したがって、結果はプログラムの実際の振る舞いと違っている可能性がある。
+
+=== サポートする OS のバージョン
+
+Cordova アプリがサポートする Android OS のバージョンを AndroidManifest.xml の minSdkVersion を元に調査し、次の結果を得た。
+
+* 90.3% (326/361個) のアプリが Android 3.0 未満をサポート
+** 当該アプリをユーザが Android 2.x 系の端末で使用した場合、ホワイトリストが適切に機能せず、信頼されないリソースを読み込む恐れがある
+
+* 99.2% (358/361個) のアプリが Android 4.2 未満の端末をサポート
+** 当該アプリをユーザが Android 4.1 以下の端末で使用した場合、addJavascriptInterface の脆弱性 (CVE-2013-4710) (CVE-2014-1939) の影響を受ける恐れがある
+
+* 99.7% (360/361個) のアプリが Android 4.4未満の端末をサポート
+** アプリが適切にホワイトリストを定義していない場合、同一生成元ポリシーをバイパスする脆弱性 (CVE-2014-6041) の影響を受ける恐れがある
+
+=== Cordova のバージョン
+
+調査対象の Cordova アプリのうち、バージョン3.5.0 以下の Cordova を使用しているアプリが 35.7% (129/361個) あった。footnote:[本調査では、classes.dex 中にorg.apache.cordova.Config.getErrorUrl() メソッドが含まれていない場合に、バージョン 3.5.0 以下と判定した]
+
+2014年08月、Cordovaアプリを公開している開発者に対して Cordova の XAS 脆弱性に関する注意喚起がなされ、修正版である 3.5.1 へのアップグレードが推奨されている。
+
+[quote, 'http://cordova.apache.org/announcements/2014/08/04/android-351.html[Apache Cordova Android 3.5.1]']
+____
+Security issues were discovered in the Android platform of Cordova. We are releasing version 3.5.1 of Cordova Android to address these security issues. We recommend that all Android applications built using Cordova be upgraded to use version 3.5.1 of Cordova Android. Other Cordova platforms such as iOS are unaffected, and do not have an update.
+____
+
+Cordova 3.5.1 では、CVE-2014-3500 の原因となる Intent の errorUrl というキーに対する処理の変更に伴い、org.apache.cordova.Config クラスに getErrorUrl というメソッドが追加されている。しかし、3割強のアプリがいまだに脆弱なバージョンの Cordova を使用している。
+
+=== Cordova Plugin の利用状況
+
+利用率の高いプラグインの上位10件は次の通り。なお、アプリが利用しているプラグインは、config.xml に定義されているプラグインの名称を元に集計している。
+
+* InAppBrowser 69.0% (249/361個)
+* Notification 69.0% (249/361個)
+* SplashScreen 68.4% (247/361個)
+* File 56.2% (203/361個)
+* Device 52.1% (188/361個)
+* Media 47.9% (173/361個)
+* FileTransfer 39.1% (141/361個)
+* Camera 38.5% (139/361個)
+* Globalization 32.1% (116/361個)
+* Geolocation 31.3% (113/361個)
+
+FileTransfer プラグインを使用する141個のアプリのうち、download 関数や upload 関数の引数の trustAllHosts に true を指定しているアプリが2個存在した。これらのアプリは、HTTPS　通信時にサーバ証明書の検証を常時バイパスするため、中間者攻撃を受ける可能性がある。
+
+=== ネットワーク経由のリソース取得
+
+HTML や JavaScript のリソースをネットワーク経由で取得するアプリは 10.0% (36/361個)存在した。footnote:[config.xml に定義されている初期ページの URL、または、assets 配下の html ファイルの &lt;link&gt;&lt;script&gt;&lt;a&gt;&lt;form&gt; タグの値に http:// もしくは https:// が含まれるアプリは、ネットワークからリソースを取得しているものと判断した]
+
+このうち、http を使ってリソースを利用する可能性があるアプリは 80.6 % (29/36個) 含まれていた。これらのアプリは、http を用いてサーバからリソースを取得する際、中間者攻撃によってブリッジを不正操作するコードを注入され、ネイティブの機能が悪用される恐れがある。
+
+
+=== ホワイトリストの使用
+
+config.xml の access[origin] の属性値に "*" を指定しているアプリは 81.4% (294/361個) 存在した。これらのアプリは、信頼されないサイトにアクセスした際にブリッジを悪用される可能性がある。
+
+
+=== Crosswalkの使用
+
+Crosswalk を使用する Cordova アプリは 1.9% (7/361個) 存在した。footnote:[APK ファイルに lib/libxwalkcore.so を含むアプリを、Crosswalk を利用するアプリとしてカウントした]
+
+サポートする最小の SDK バージョンはいずれも Android 4.0以下であった。これらのアプリを Android 4.0 の端末で動作させた場合、ユーザがアクセスした URL など機微な情報がログを通じて漏えいする恐れがある。
+
+また、Manifest.json で CSP を指定しているアプリは0個であった。footnote:[APK ファイルの assets/www/manifest.json に CSPの宣言があるアプリ数をカウントした]

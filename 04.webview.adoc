@@ -1,0 +1,75 @@
+== WebView
+=== 概要
+
+ハイブリッドアプリでは、主要機能の多くが Web アプリとして実装され、WebView 上で実行される。WebView への依存度が高いため、通常のアプリと比べ、WebView の脆弱性が悪用された場合の影響が大きい。
+
+2015年1月、セキュリティ調査会社の https://community.rapid7.com/community/metasploit/blog/2015/01/11/google-no-longer-provides-patches-for-webview-jelly-bean-and-prior[Rapid7 の報告]により、Google が Android 4.3 以下の WebView に対するセキュリティパッチの開発を止めたことが明らかになった。Android 4.3 以下の WebView には複数の脆弱性が存在し、調査によると9億3千台のAndroid端末がそれらの脆弱性の影響を受けるとしている。その後、Googleの開発者である Adrian Ludwig 氏が  https://plus.google.com/%2BAdrianLudwig/posts/1md7ruEwBLF[Google+] において、Android 4.3 以下の WebView に対してパッチの開発を行わないことを認めている。
+
+Android 4.3 以前の端末を所有するユーザは、通信キャリアや端末メーカが Android 4.4 以降へのアップデートを提供しない場合、WebView の脆弱性を対策することができず、脆弱性の影響を受ける状態が続くことになる。
+
+Android 5.0 以降の WebView は、システムから切り離され、通常のアプリと同様に GooglePlay からアップデートできるモジュールとして提供されるようになった。ファームウェアのアップデートを待つことなく、WebView をアップデートできるよう変更された点は、ユーザにとって脆弱性対策の観点から好ましい。ただし、アップデートは通常のアプリと同様に配信され、端末のデフォルト設定では Wi-Fi 接続時のみに自動更新されることになるため、3G/LTE のみを使用するユーザは、手動で Google Play からアップデートをダウンロードする必要がある。
+
+以降、アプリに影響を与える WebView の脆弱性について検討する。
+
+=== WebView の主な脆弱性
+==== Webページから任意のJavaコードを実行できる脆弱性 (CVE-2013-4710, CVE-2014-1939)
+
+Android 4.1 以下の WebView には、ユーザを悪意サイトにアクセスしただけで攻撃者の Java コードを実行させられる脆弱性が存在する。footnote:[http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4710] footnote:[http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-1939] 脆弱性が悪用された場合、ユーザが Web ページを開いただけで、アプリが管理するユーザの個人情報が盗まれる、あるいは他のアプリが起動されるなどの恐れがある。また、他の脆弱性との組み合わせで、Web ページを開いただけで端末の管理者権限が取られ、マルウェアをインストールされたりする恐れもある。
+
+Android フレームワークが WebView を初期化する際には、2つの Java オブジェクト SearchboxImpl と accessibility を WebView#addJavascriptInterface によってインスタンシエートしており、それぞれ searchBoxJavaBridge_ と accessibility という名称で JavaScript から参照可能であった。また、JavaScript から Java のリフレクションを行うことで、これらのオブジェクトを介して任意の Java コードを実行することが可能であった。
+
+Android 4.2 では、SearchboxImpl オブジェクトは WebView から削除され、accessibility オブジェクトについては、リフレクションが使えないように制限されている。footnote:[https://android.googlesource.com/platform/frameworks/base.git/%2B/d773ca8ff2a7a5be94d7f2aaa8ff5ef5dac501a8%5E%21/#F0] footnote:[https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c]
+
+これらの脆弱性は Android 4.1 以前の addJavascriptInterface の仕様に起因するものである。したがって、アプリが API 16 以前をサポートする場合、アプリ内のコードで addJavascriptInterface を利用した際にも同様の脆弱性が生じる可能性がある。Android 4.2 では、Java のソースコード上で @javascriptinterface というアノテーションが指定されたメソッドしか JavaScript から操作できないように API が仕様変更されている。footnote:[https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c]
+
+Cordova は addJavascriptInterface を用いたブリッジをサポートしているが、Android 4.2 未満の端末ではこれを使用していない。 footnote:[https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L314]
+
+==== 同一生成元ポリシーを回避し任意の JavaScript を実行できる脆弱性 (CVE-2014-6041)
+
+2014年8月、研究者のRafay Baloch氏によって、Android 4.3以下の端末における、同一生成元ポリシーを回避する脆弱性 https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6041[CVE-2014-6041] が報告された。攻撃コードはRafay氏の http://www.rafayhackingarticles.net/2014/08/android-browser-same-origin-policy.html[ブログ] で公開され、また攻撃方法そのものも容易であることから、いつ悪用されてもおかしくない状態にある。攻撃方法は、攻撃対象のページを開いた iframe や window オブジェクトの上で、ナル文字で始まる javascript スキームのURL(\u0000javascript:) を開かせるというものである。
+
+==== iOS の UIWebView の脆弱性
+
+iOS の UIWebView にも WebKit 由来の脆弱性が多数報告されており、iOS8 未満では一部の脆弱性が改修されていない。たとえば、iOS 8.1.1 より前の WebKit にはリモートから任意コード実行可能な脆弱性 https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-4452[CVE-2014-4452]、 https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-4462[CVE-2014-4462] が報告されている。これらは2014年11月の iOS 8.1.1 で修正されているが、iOS7 系の最後のアップデートは2014年6月であるため、iOS7 系では修正されていない可能性が高い。
+
+=== 対策方法
+
+==== 信頼できないリソースを開かないよう制限する
+
+Cordova が提供するホワイトリストを利用することで、信頼できないリソースを開かないように制限することができる。しかし、ホワイトリストには実装面や運用面での制限が指摘されている(ホワイトリストの制限事項や課題は後述する)。
+
+ホワイトリストを適切に使用した場合であっても、次のような場合には、中間者攻撃により信頼できないリソースを読み込まされる恐れがある。
+
+* HTTPでリソースを取得している場合
+* アプリのサーバ証明書検証に不備がある場合
+* 証明書ストアに信頼できないルートCA証明書がインストールされている場合
+
+Android 版の Cordova 3.5.1 未満を使用している場合、ホワイトリストを正しく使用していても、XAS (Cross-Application-Scripting) 脆弱性 http://jvndb.jvn.jp/ja/contents/2014/JVNDB-2014-005470.html[CVE-2014-3500] により、外部から JavaScript を注入される恐れがある。また、ホワイトリストで信頼されているオリジンの HTML に XSS の脆弱性がある場合、第三者から JavaScript を注入される恐れがある。
+
+==== 古いOSのサポートを打ち切る
+
+ビジネス上許容できるのであれば、脆弱性の存在する古いOSバージョンのサポートを打ち切るという選択肢もある。既に攻撃方法が開示されていたり悪用されている脆弱性であれば、アプリ利用者が攻撃を受ける危険性に配慮し、サポートを打ち切ると同時にユーザに対して注意喚起を行うことが望ましい。
+
+==== サードパーティ製 WebView を利用する (Android)
+
+Android では、端末に搭載されている OS 標準の WebView の代わりに、WebView 互換のライブラリをアプリに組み込むことで脆弱性を回避できる場合がある。WebView 互換のライブラリは、パフォーマンスの向上が期待できることや、端末間の互換性を確保しやすいことから、開発者の間で注目を集めている。
+
+WebView 互換のライブラリとしては次が存在する。
+
+* https://crosswalk-project.org/[Crosswalk]
+* https://github.com/pwnall/chromeview[ChromeView] (開発中止)
+* https://github.com/ludei/webview-plus/[Ludei WebView+]
+
+===== Crosswalk
+Crosswalk は Intel が中心となって開発が進められているオープンソースの WebView 実装である。最新の Chromium のソースコードを用いて頻繁に更新作業が続けられており、Crosswalk を使用することで端末の WebView が抱える既知の脆弱性の影響を受けることなく、アプリを開発することが可能になる。
+
+2015年4月には Crosswalk が公式にサポートされることが発表されている。footnote:[http://cordova.apache.org/announcements/2015/04/15/cordova-android-4.0.0.html] 4.x 系の Cordova では Crosswalk を Cordova プラグインとしてアプリに組み込むことができるようになり、アプリに組み込んだ場合、ビルド時に最新の Crosswalk ライブラリが自動的に組み込まれる。2015年6月25日時点、最新の安定版である Crosswalk 13.42.319.12 が組み込まれる。
+
+Crosswalk には次に挙げる課題が存在する。
+
+===== Crosswalk の課題
+* Crosswalk は Android 4.0 以上を対象とするため、4.0未満をサポートするアプリに導入できない
+
+* Android 4.0 以前において、READ_LOGS パーミッションを持つアプリであれば他のアプリのログを閲覧できるため、情報流出の危険性が存在した。これはたとえば、ログに出力される URL に、セッションID や OAuth 2.0 のアクセストークンなどの情報が含まれる場合、セキュリティ上の問題となる。Android 4.0 の WebView では、WebChromeClient#onConsoleMessage() をオーバーライドし true を返すよう変更することで、WebView のログを無効化できた。Crosswalk は多くの箇所で android.util.Log の Log クラスのメソッドを直接呼び出しており、onConsoleMessage をオーバーライドするだけではすべてのログを無効化できない。
+
+* アプリのサイズが大きくなるfootnote:[ARM と x86 の両アーキテクチャに対応したCrosswalk をアプリに組み込んだ場合、インストール後のパッケージサイズは 58MB 程度になる (https://crosswalk-project.org/documentation/about/faq.html)]

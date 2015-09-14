@@ -1,0 +1,213 @@
+== アプリ固有コード (JS)
+=== 概要
+
+Cordova アプリでは、ネイティブアプリと同等のユーザインタフェースや機能を実現するために、HTML5 をはじめとする新しいウェブの技術が利用される。Web アプリ開発の知識が乏しいネイティブアプリのプログラマが Cordova アプリを開発するような場合、文字列のエスケープ漏れに起因する XSS などを誤って作り込む可能性がある。
+
+従来の Web アプリでは、ユーザの入力値やサーバから取得したデータが XSS を誘発するデータの侵入経路であった。Cordova アプリでは、プラグインを通して取得した様々なデータが、侵入経路となる可能性がある。また、ローカルファイルシステムに保存された HTML や JavaScript のみで処理を完結するCordovaアプリが多く存在することから、DOM を組み立てる処理に起因する DOM Based XSS を作り込む可能性が高くなることも考えられる。
+
+Web アプリ開発経験の豊富なプログラマであっても注意すべき点がある。HTML5 の機能の中には、まだ実装されてから日が浅く、安全に利用する方法が確立されていないものも含まれる。また、Cordova プラグインの誤用に起因する脆弱性も考えられる。最新の脆弱性動向に注意するとともに、新たな脆弱性パターンが報告された際には、自アプリへの影響を適切に評価できる体制を整えておくことも重要である。
+
+本章では、アプリ開発者が HTML や JavaScript のコードを実装する際に作り込む可能性がある脆弱性と、その対策方法について述べる。
+
+=== 作り込む可能性のある脆弱性
+==== HTML5特有の脆弱性
+===== 概要
+
+近年のWeb技術の進化は目覚ましく、Webブラウザには新しい機能が続々と実装されている。W3C の http://www.w3.org/2008/webapps/[Web Applications Working Group] や http://www.w3.org/2012/sysapps/[System Applications Working Group] では、ネイティブアプリに遜色のないリッチなクライアントアプリを実現することを目的とした機能が提案されている。JavaScript のコードから TCP/UDP ソケットを生成する http://www.w3.org/TR/tcp-udp-sockets/[TCP and UDP Socket API] や、SMS/MMS を直接送信する http://www.w3.org/TR/messaging/[Messaging API]、電話帳を管理する http://www.w3.org/TR/contacts-manager-api/[Contacts Manager API] などはその例である。
+
+Cordova プラグインの中には、これらの機能を独自に実装しているものがあり、アプリ開発者は、プラットフォームの対応を待つことなく、こうした機能の一部を利用できる。(例: https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-socket[cordova-plugin-chrome-apps-socket], https://github.com/hazems/cordova-sms-plugin[cordova-sms-plugin], https://github.com/apache/cordova-plugin-contacts/[cordova-plugin-contacts])
+
+近年登場した API は、仕様策定段階からセキュリティやプライバシー上の懸念が検討されたことで、アプリ開発者がセキュリティリスクを意識せず使えるものが増えてきている。しかし一方で、依然として開発者がセキュリティリスクに注意して使わなければならない機能も存在する。
+
+本節では、広義の HTML5 に含まれる機能において、アプリ開発者が実装方法を誤った際に生じうる脆弱性を説明する。
+
+===== Web SQL Database
+
+http://www.w3.org/TR/webdatabase/[Web SQL Database] は、構造化された大容量のデータを Web のクライアントに保存する機能である。本仕様は廃止されて、多くのプラットフォームでは、その代わりとして標準化された http://www.w3.org/TR/IndexedDB/[Indexed Database API] に移行しつつある。
+
+Android 4.3 以下の WebView では Indexed Database API がサポートされていないため、構造化したデータを保存する際には Web SQL Database が利用される。
+
+iOS の UIWebView も Indexed Database API をサポートしていないため、2015年5月時点 では、Web SQL Database が利用される。iOS8 で搭載された WKWebView は Indexed Database API をサポートするが、Cordova が WKWebView に対応していないため、Cordova アプリで利用することはできない。
+
+Web SQL Database には executeSql という関数が定義されており、任意のSQLクエリを実行することができる。executeSql はバインド機構をサポートしているが、アプリ開発者がこれを使わず、文字列の結合のみで SQL クエリを構築している場合、SQLインジェクションの脆弱性を作り込む恐れがある。
+
+===== Web Messaging API
+
+http://www.w3.org/TR/webmessaging/[Web Messaging API] は、異なるフレームやウィンドウ間でメッセージの受け渡しを行う機能である。クロスオリジンの通信を許可しており、オリジンの異なるドキュメント間でもデータを受け渡すことが可能となる。メッセージを送受信する際、アプリが適切にオリジンを検証しないと、意図しないサイトにデータを渡してしまったり、逆に、意図しないデータを受け取ったりする恐れがある。
+
+.メッセージを送信する際の注意点
+* window.postMessage 関数を利用し、異なるフレームやウィンドウにメッセージを送れる
+* postMessage は、第2引数でオリジンを指定し、メッセージを受信可能なオリジンを制限できる
+* 第2引数に特定のオリジンを指定しない場合 ("{asterisk}"を指定した場合)、意図せぬサイトにデータを送り、場合によっては、送信したデータを盗まれる恐れがある
+
+.メッセージを受信する際の注意点
+* 他のウィンドウから送られたメッセージは、window.onmessage に指定したハンドラで受け取れる
+* onmessage に指定したハンドラの引数には、MessageEvent オブジェクトが渡される
+* MessageEvent オブジェクトの origin プロパティにはメッセージの送信元情報が含まれる。これを元に送信元を制限できる
+* メッセージの受信時、送信元のオリジンを検証していない場合、意図しないサイトからデータを受け取り、意図しないプログラムの動作を引き起こされる恐れがある
+
+==== DOM Based XSS
+===== 概要
+DOM Based XSS は XSSの 一種である。サーバ側で HTML を動的に生成する際に発生する従来の XSS とは異なり、クライアント側で JavaScript を用いて DOM を生成する際に発生する。
+
+従来の Web アプリでは、ユーザの入力値やサーバから取得したデータが主な攻撃経路であった。ハイブリッドアプリではこれらに加え、次に挙げるデータも攻撃ベクタとなる。footnote:["Code Injection Attacks on HTML5-based Mobile Apps:
+Characterization, Detection and Mitigation" (http://www.cis.syr.edu/~wedu/Research/paper/code_injection_ccs2014.pdf)]
+
+* 画像、音声、動画ファイルのメタ情報
+* Wi-Fi、Bluetooth アクセスポイントの ID
+* SMS、電話帳、通話履歴、カレンダー、ブックマーク、ブラウズ履歴、ユーザ辞書
+* バーコード、QRコード、NFC
+* ファイルシステムから取得した情報
+* Android の Intent や ContentProvider
+
+2014年には QR コードを読み出すアプリにおける XSS 脆弱性(http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8672[CVE-2014-8672])
+が指摘されている
+
+ネイティブアプリでは、上記のようなデータを画面の表示データとして扱う際、特別にセキュリティ上の注意を払う必要がなかったことから、Web の開発経験の浅い開発者が Cordova アプリを開発する場合に、XSSを作り込む可能性が高くなる恐れがある。
+
+DOM Based XSS を防ぐには、データを用途(コンテキスト)に応じてエスケープする必要がある。footnote:[Unraveling some of the Mysteries around DOM-based XSS -- Client Side Context Sensitive Output Escaping, P21 (https://www.owasp.org/images/f/f4/ASDC12-Unraveling_some_of_the_Mysteries_around_DOMbased_XSS.pdf)] しかし、コンテキストは幾通りもあり、その判断を誤ると XSS を防げない。また、複数のコンテキストを同時に考慮しなければならない場合等、判断が困難な場合もある。footnote:[Complex Contexts (https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet#Complex_Contexts)]
+
+Cordova　アプリの中には、 http://en.wikipedia.org/wiki/Single-page_application[Single Page Application] (SPA) と呼ばれる概念を取り入れているものがある。これは、JavaScript を用いて動的に DOM を切り替えることで、1つの HTML ドキュメントで複数のページ遷移を実現している。シームレスな画面遷移の演出や、異なるページ間での状態の引き継ぎが容易であるといったメリットがある一方で、SPA では、外部から入力されたデータがページを横断して使われる可能性があり、コードレビューや脆弱性検査等で XSS を検出することがさらに難しくなる。
+
+
+===== 想定される被害
+
+XSS によって発生する可能性のある被害は、アプリの仕様によって異なる。
+
+.ローカルファイルの漏洩
+Android版 Cordova は、file スキームで動作する JavaScript から、他のローカルファイルを含む任意のオリジンに対するアクセスを許可しているため footnote:[WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している (https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860)]、file スキームで動作する HTML に XSS があった場合、アプリの権限でアクセスできる任意のローカルファイルを盗まれる可能性がある。Android の場合、機密性の高い情報としては、WebView の閲覧履歴、キャッシュ、Cookie、フォームの入力内容 footnote:[Android 版の Cordova はWebSettings#setSavePassword(false) により、ユーザが入力したパスワードを記録しないように指定しているが、本 API は Android 4.3 で廃止されており、Android 4.4以降ではパスワードの保存を止めることはできない (https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L226)] などが挙げられる。例えば、フォームの入力履歴は、file:///data/data/&lt;pkg&gt;/databases/webview.db にアクセスすることで取得できる。また、 READ_EXTERNAL_STORAGE パーミッションを有するアプリの場合、SD カード上の任意のデータを盗まれる可能性もある。さらに、Android では、file スキームで動作する JavaScript は、任意のオリジンの window オブジェクトに対するアクセスが許されている。windowオブジェクトを通じて、他のウィンドウやフレームで開かれた任意のオリジンのドキュメントに対してスクリプトを挿入される可能性もある。
+
+.UIWebView におけるローカルファイルへのアクセス
+
+iOS 7 以前の UIWebView では、下記の特定の条件において、ローカルの HTML からアプリのサンドボックス内にある任意のローカルファイルを読み出すことができる。footnote:[baseURL が file:/// や nil/NULL の場合、任意のローカルファイルを参照できる。"WebView security on iOS", P.19 (http://www.slideshare.net/lpilorz/webview-security-on-ios-en)]
+
+* loadRequest: メソッドでローカルの HTML をロードした場合、サンドボックス内の任意のファイルを file:// スキームで読み出すことができる
+
+* loadHTMLString:baseURL: および loadData:MIMEType:textEncodingName:baseURL: メソッドで、引数の baseURL に "file://" または "nil" を指定してローカルの HTML をロードした場合、サンドボックス内にある任意のローカルファイルを file:// スキームで読み出すことができる
+
+* iOS 6 以前においては、これらのメソッドを用いて、電話帳などのシステム領域にあるファイルも取得することができる
+
+iOS 8では、アプリのサンドボックス内のファイルに file:// スキームでアクセスできなくなった。
+
+.その他のローカルデータへのアクセス
+Webアプリと同様、Cookie、Web Storage、Indexed Database API、Web SQL Database を利用しているアプリであれば、ストレージの情報を盗まれたり、改ざんされたりする恐れがある。
+
+.ブリッジやプラグインの悪用
+ブリッジの機能や、アプリが組み込んでいるプラグインの機能が悪用される恐れがある。たとえば次のようなケースが考えられる。
+
+* アプリが Contacts プラグインを組み込んでいる場合、navigator.contacts.find 関数を通じて、電話帳のデータを盗み出される恐れがある
+* InAppBrowser プラグインを利用している場合、executeScript 関数を通じて InAppBrowser 上の任意のページに対して悪意のあるスクリプトを注入できる
+* InAppBrowser に対して悪意のある loadstart イベントハンドラを挿入された場合、InAppBrowser 上で開かれた全てのページの URL を盗み出すことができる
+** このとき、URL には (HTTPSの接続も含め) クエリ文字列やフラグメントを含む全てのURL構成要素が渡る。また、OAuth 2.0 の Implicit Grant を使用しているサイトでは、URL に含まれるアクセストークンなどの機密情報を盗み出される恐れもある
+
+.WebView の悪用
+WebView の脆弱性を悪用されることにより、アプリの権限で任意の Java コードを実行されたり、異なるオリジンのページに対して JavaScript を注入される恐れがある。
+
+
+===== 発生の仕組み
+
+DOM Based XSS は、通常、外部から渡されたスクリプトを含むデータが、スクリプトとして解釈される状態のまま DOM に出力されることにより発生する。また、window.eval、Function コンストラクタ、第一引数に String 型を取るwindow.setInterval、window.setTimeout を利用して文字列を JavaScript のコードに変換する際に、外部から意図しないスクリプトが混入するケースもある。
+
+ブラウザの機能追加に伴い、データの入力経路 (Source) と出力経路 (Sink) は増え続けている。
+
+主な入力経路としては次が考えられる。
+
+* 従来から指摘されている Sourceとしては、location オブジェクト(アドレスバーに指定されたURLやリファラ)、form の入力値、Cookie など
+
+* HTML5で追加された Web Socket、Web Messaging、XMLHttpRequest、Server-Sent Event などを通じて他のサーバやドキュメントから取得したデータ
+
+* 外部から渡されたデータが、Web Storage、Web SQL Database、Indexed Database API などオフラインストレージに格納された場合、蓄積型 XSS が発現する可能性がある
+
+主な出力経路としては次が考えられる。
+
+* HTMLマークアップを直接出力する関数 (document.write、element.innerHTML など)
+* DOM を出力する関数 (Node.appendChild など)
+* URL を受け取る HTML 属性値や CSS (a[href] など。javascript スキームの URL を指定された場合に XSS が発生する可能性がある)
+* HTML のイベントハンドラ属性値 (onClick, formaction など)
+* Range.createContextualFragment() (DOM への出力を行わなくとも、文字列から HTML の断片(フラグメント)を生成した時点で XSS が発生する) footnote:[https://code.google.com/p/domxsswiki/wiki/HTMLElementSinks]
+
+第三者が作成したフレームワークやライブラリを利用する場合、それらが提供する API の誤用によって XSS が発生する恐れがある。jQuery の場合、http()、append()、before()、insertAfter()、prepend() などの関数では、スクリプトを含むHTML の文字列を引数に渡すことにより XSS が発生する。footnote:[http://api.jquery.com/[jQuery API リファレンス]では、XSS を引き起こす可能性のある API には Additional Notes として次のような注意が記載されている。"Do not use these methods to insert strings obtained from untrusted sources such as URL query parameters, cookies, or form inputs. Doing so can introduce cross-site-scripting (XSS) vulnerabilities"]
+
+Android 5.0 の WebView では、Web Components の構成機能の一つである HTML Imports が実装されているが、&lt;link&gt; タグで外部から読みこんだ HTML ファイル (imports) に XSS 脆弱性がある場合、埋め込まれたスクリプトがロード元の HTMLのコンテキストで実行される恐れがある。
+
+==== Cordova プラグインの誤用に起因する脆弱性
+===== 概要
+この項では、プラグインの誤用によって起こりうる脆弱性の一例を述べる。Plugin Registry に公開されているプラグインのうち、2015年1月19日時点の上位20位を調査の対象とする。プラグインの仕様が変更された場合、状況は変わる可能性がある。
+
+===== File Transfer
+File-Transferプラグインは、任意のローカルファイルをサーバとの間で送受信するためのプラグインである。指定したローカルファイルを HTTP の POST メソッドでサーバにアップロードする upload 関数と、サーバからファイルをダウンロードして保存するdownload 関数を備える。
+
+アプリが upload 関数を使う際の注意点としては以下が考えられる。
+
+* upload 関数には、ブール型引数 trustAllHosts があり、これを true に設定した場合、SSL/TLS 接続時のサーバ証明書検証が行われない。trustAllHosts は、本来、アプリの評価段階で使うことを想定したオプションであり、リリース時に true がセットされている場合は、意図しないサーバとファイルをやり取り可能な脆弱性となる
+
+* 引数の fileURL には、サーバに送信するローカルファイルのパスを指定するが、このとき、外部から「/」や「%2f」といったディレクトリセパレータを含むファイル名(たとえば　../../../../default.prop) が渡された場合、意図しないディレクトリにあるファイルがアクセスされる恐れがある(ディレクトリトラバーサル攻撃)
+
+* アプリがデータを読み書きするディレクトリパスのいずれかに対して、攻撃者がシンボリックリンクを作成可能な場合、ディレクトリ外のファイルにアクセスされる恐れがある (シンボリックリンク攻撃)
+
+* ディレクトリトラバーサル攻撃の一般的な対策は、受け取ったパスを正規化し、その結果が意図したディレクトリの配下を指しているかを検証することであるが、本プラグインには、パスを正規化する機能が無いため、このような対策を施すことはできない。パスの検証については、アプリの開発者がネイティブコード内に実装する、あるいは、JavaScript においてファイル名として外部から指定可能な文字種を英数字のみに制限する、といった対策方法が考えられる
+
+* シンボリックリンク攻撃の一般的な対策は、ファイルを開く関数に対してシンボリックリンクを解決しないためのオプションを指定することや、シンボリックリンクを解決した後のパスを検証することであるが、本プラグインは、どちらの対策も行うことができない。パスの検証を行う機能をネイティブ側で実装するか、あるいは、JavaScript のみで対策するのであれば、攻撃者がシンボリックリンクを作成可能なディレクトリパスにファイルを保存しない対策が挙げられる
+
+次に、アプリが download 関数を使う際の注意点を以下に述べる。
+
+* download 関数には、trustAllHosts という引数があり、upload 関数と同様の注意点がある
+
+* 引数の target には、サーバからダウンロードしたファイルの保存先をパスで指定できるため、upload 関数の fileURL に対する注意点と同様に、ディレクトリトラバーサルやシンボリックリンク攻撃の対策が必要となる
+
+===== File
+https://github.com/apache/cordova-plugin-file/[File] プラグインは、ローカルファイルの読書きを行うプラグインである。インタフェース は W3C の File API や FileSystem API に基づいている。
+
+プラグインは window.resolveLocalFileSystemURL 関数を用いて、指定したローカルファイルを開くことができる。第1引数には、開きたいファイルを file スキームの URL で指定するが、このとき、File-Transfer プラグインと同様に、ディレクトリトラバーサル攻撃やシンボリックリンク攻撃を受ける可能性がある。対策方法は、File-Transfer プラグインの場合と同じである。
+
+File プラグインでは、ローカルのディレクトリリストやファイルリストを取得する機能がある。ディレクトリ名やファイル名には、「&lt;」や「&gt;」といった文字列を含めることができるため、これらの文字列を innerHTML などで DOM に出力した場合、DOM Based XSS となる可能性がある。
+
+Googleが運営する HTML5 の紹介サイト「HTML5Rocks」には、FileSystem API の使い方を紹介したチュートリアルのページがある。footnote:[http://www.html5rocks.com/ja/tutorials/file/filesystem/]
+その中に「ディレクトリ コンテンツの読み込み」というサンプルコードがあるが、ファイル名を innerHTML で出力しているため、DOM Based XSS が生じる恐れがある。
+アプリの開発者が、この記事のサンプルコードを流用した場合、DOM Based XSS を作り込む恐れがある。
+
+===== Contacts
+https://github.com/apache/cordova-plugin-contacts/[Contacts] プラグインは、端末の電話帳データを読み書きするプラグインである。電話帳データは、navigator.contacts.find で取得できるが、電話帳データには「&lt;」や「&gt;」を含めることができるため、 電話帳から取得したデータを innerHTML などで DOM に出力した場合、DOM Based XSS となる恐れがある。
+
+Intel 社が Intel AppFramework の紹介のために公開しているアプリ https://github.com/krisrak/html5-kitchensink-cordova-xdk-af[HTML5 Kitchen Sink Mobile App] では、電話帳の表示名 (displayName) を jQuery の .html() で DOM に出力しているため、DOM Based XSS となりうる。
+
+=== 対策方法
+==== セキュアコーディングの教育
+これまでに紹介したような脆弱性を作り込まないためには、開発者がWebのセキュアコーディングを習得することが最も重要となる。
+
+Web のセキュアコーディングを学ぶ教材としては、OWASP が公開する  https://www.owasp.org/index.php/HTML5_Security_Cheat_Sheet[HTML5 Security Cheat Sheet] や、JPCERT/CC による「 https://www.jpcert.or.jp/research/html5.html[HTML5 を利用したWeb アプリケーションのセキュリティ問題に関する調査報告書]」がある。Web の進化は目覚ましく、ブラウザには次々と新しい機能が実装されていくため、これらの教材において安全と考えられていた実装方法に欠陥が見つかり、実装方法を変えなければならないこともある。最新の脅威に対応するには、最新の研究結果を迅速に反映し、教材の内容を定期的にアップデートする必要もある。
+
+DOM Based XSSについては、発生のメカニズムに対する体系的な理解が求められることもあり、開発者のリテラシーを向上させることは容易ではない。セキュアコーディングのみに頼らず、多層防御として、CSPの利用や、XSSを防止する機構を備えるフレームワークやライブラリの導入も併せて検討する必要がある。
+
+Cordova プラグインについては、その安全な使い方に関する情報が十分であるとは言えない状況であるため、今後、Cordovaアプリがより普及した際には、安全な使用方法に関するガイドラインの登場が望まれる。
+
+
+==== CSPの利用
+
+CSP を用いることにより、DOM Based XSS による被害を軽減できる。CSP の利用方法については前述の通り。
+
+==== JavaScriptライブラリの導入
+
+DOM Based XSS に対しては、XSS が発生するコンテキストに対する体系的な理解が求められる上、例え理解をしていても、開発時に実装方法を誤ることがある。XSS の発生を低減する機能を持つ JavaScript フレームワークやライブラリを利用することも効果がある。
+
+DOM Based XSS の被害を軽減する仕組みを持つフレームワークの例として、Google　が公開している　https://angularjs.org/[AngularJS]　が挙げられる。AngularJS には、 https://docs.angularjs.org/api/ng/service/$sce[Strict Contextual Escaping] と呼ばれる機能があり、JavaScript の変数値を DOM にデータバインドする際、データをコンテキストに応じて自動的にエスケープしてくれる。しかし、フレームワークやライブラリの中には、仕組みが独特で学習コストの高いものや、フレームワークの作法に沿った実装が求められるものがあり、一度導入すると他のフレームワークへ移行することが難しくなるので、採用に際しては慎重な判断が必要である。また、フレームワークやライブラリそのものの脆弱性の影響を受ける可能性もあるため、継続的なバージョン管理が必要となる。
+
+==== 不要なプラグインの削除
+
+Cordova アプリに不用意に多くのプラグインを組み込んでいる場合、XSS などによりプラグインが提供する機能が不正に利用される恐れがある。
+
+Android の場合、プラグインが使用するパーミッションは、プラグインを組み込んだ時点で AndroidManifest.xml に使用宣言される。つまり、アプリに不要なプラグインを組み込むと、不要なパーミッションを使用宣言してしまうため、アプリが攻撃された場合の被害が大きくなる。また、アプリのインストール時に表示されるパーミッションリストを見て、ユーザに悪意のあるアプリと勘違いされる恐れもある。
+
+不要なプラグインはアプリのリリース前に削除することが望ましい。Cordova CLI を利用している場合、cordova plugin remove コマンドでプラグインを削除することが可能である。
+
+=== 対策の難しい問題
+
+Web アプリやネイティブアプリと同様に、Cordova アプリにも対策の難しい問題が存在する。
+
+対策の難しい問題の1つに、リバースエンジニアリングによるアプリのリソースの盗難や改ざんがある。アプリケーションのパッケージを解析され、HTML や JavaScript で書かれたアプリのロジック、フォントデータ、画像データなどが盗難、改ざんされる恐れがある。
+
+アプリのロジックを保護する場合、保護したい機能をサーバプログラムとして実装し、実行結果のみをアプリに返すといった方法が取られることがある。しかし、サーバに対する問い合わせが何度も発生してデータ通信量が増加し、パフォーマンスの悪化や、オフライン利用ができなくなるなどして、App Store の審査結果に影響を及ぼすといった副作用が生じることも考えられる。
+
+JavaScript の難読化ツールを使いロジックの解析を難しくすることもできるが、処理の冗長化によるパフォーマンスの悪化や、難読化後のコードで不具合が発生した際にデバッグが困難になるといった悪影響も考えられる。
+
+この他にも、端末の管理者権限を利用した攻撃や、正規のアプリを使用するユーザ自身による攻撃に対しては、プラットフォームの性質上、対策が困難となる。たとえば、ゲームアプリにおいて、ゲーム上のステータスや、有料コンテンツの課金状態をオフラインストレージで管理している場合、ユーザ自身がそれらの情報を書き換えてチート行為を行う可能性がある。こういった問題の対策方法は想定される問題ごとに異なるため、セキュリティの専門家に相談することも検討したい。

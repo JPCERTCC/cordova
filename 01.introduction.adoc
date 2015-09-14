@@ -1,0 +1,17 @@
+= 「Apache Cordova」を使ったハイブリッドアプリケーションの脆弱性に関する調査
+一般社団法人 JPCERT コーディネーションセンター 脆弱性解析チーム <secure-coding@jpcert.or.jp>
+v1.0, 2015-09-14
+:toc:
+:homepage: https://www.jpcert.or.jp
+
+== はじめに
+
+近年、モバイルアプリケーション（以下、アプリ）の市場では、プラットフォーム固有のプログラム言語（以下、ネイティブ言語）で全体を書く代わりに中核部を HTML5 や JavaScript で作った、ハイブリッドアプリケーション（以下、ハイブリッドアプリ）と呼ばれるアプリが増えている。AppBrain による 2015年6月24日時点の調査によると、Google Play で公開されているアプリのうち、5.63% がハイブリッドアプリフレームワーク（以下、フレームワーク）の1つである Cordova を使って開発されている。footnote:[http://www.appbrain.com/stats/libraries/details/phonegap/phonegap-apache-cordova]
+
+ハイブリッドアプリの開発には標準化された Web の技術を用いるため、アプリのクロスプラットフォーム化を容易にできる一方、開発の効率化のために採用したフレームワークがもたらす潜在的な脆弱性や、Web の開発言語に起因する脆弱性がアプリに混入するリスクが生じる。
+
+したがって、アプリユーザが抱えるセキュリティ上のリスクをできるだけ低減するために、アプリ開発者には、セキュアコーディング等により自身が書くコードを堅牢にするのみならず、フレームワーク等がもたらす脆弱性を把握し、取りうる対策を最大限に実施することが望まれる。フレームワークに関する脆弱性の研究はすでにいくつか行われているが footnote:[IBM, Security Intelligence, Apache Cordova Vulnerability Discovered: 10% of Android Banking Apps Potentially Vulnerable (http://securityintelligence.com/apache-cordova-phonegap-vulnerability-android-banking-apps/)] footnote:[M. Georgiev, S. Jana, and V. Shmatikov. "Breaking and fixing origin-based access control in hybrid web/mobile application frameworks." In Proceeding of the Network and Distributed System Security Symposium (NDSS), 2014.] footnote:[X. Jin, X. Hu, K. Ying, W. Du, H. Yin and G. N. Peri. "Code Injection Attacks on HTML5-based Mobile Apps: Characterization, Detection and Mitigation" In Proceedings of the 2014 ACM SIGSAC Conference on Computer and Communications Security. ACM, 2014.]、これらの研究はアプリ開発者が取りうる対策を網羅的にまとめたものではなく、アプリに作り込まれうる脆弱性の全体像を俯瞰するには適さない。
+
+本報告書では、フレムワークの1つである Apache Cordova (以下、Cordova) を用いて開発された、Android と iOS のハイブリッドアプリに様々な脆弱性が作り込まれる様子を、アプリの構成要素（OS、WebView、Cordova、プラグイン、アプリ固有のコード、ネットワーク通信、サーバ）ごとに分析する。分析にあたり、各コンポーネントにこれまで発見された脆弱性、先行研究で指摘された脆弱性、本調査により発見した新規の脆弱性を可能な限り網羅し、その影響と対策方法を提示した。また、これらの脆弱性の影響範囲を把握するため、アプリマーケットで公開されているハイブリッドアプリの調査を行った。
+
+本調査は、経済産業省委託事業「平成26年度サイバーセキュリティ経済基盤構築事業（サイバー攻撃等国際連携対応調整事業）」における「脆弱性関連情報等の流通及び製品開発者における対策活動の支援」の一部として行われたものである。

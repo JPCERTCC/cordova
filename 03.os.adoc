@@ -1,0 +1,37 @@
+== OS
+=== 脆弱性の傾向
+
+Android や iOSにはこれまでに多くの脆弱性が発見されており、これらはOS上で動作するアプリにも間接的に影響を及ぼす可能性がある。
+
+OSの脆弱性は、端末メーカーから配信されるファームウェアアップデートによって修正されるが、サポート期間を過ぎた端末の脆弱性は放置されるため、そのような端末のユーザが危険に晒されることになる。
+
+アプリに影響を及ぼす可能性のある脆弱性としては、たとえば次に挙げるものが存在する。
+
+.Java Cryptography Architecture (JCA) の SecureCrandom
+Android バージョン4.1 からバージョン4.3 においては、Java の乱数生成関数(SecureRandom) が返す乱数値を予測できる脆弱性が指摘されている。
+
+[quote, Some SecureRandom Thoughts from Android Developers Blog, http://android-developers.blogspot.jp/2013/08/some-securerandom-thoughts.html]
+We have now determined that applications which use the Java Cryptography Architecture (JCA) for key generation, signing, or random number generation may not receive cryptographically strong values on Android devices due to improper initialization of the underlying PRNG.
+
+
+脆弱性は実際に Bitcoin の不正送金に利用され、Google から Android アプリの開発者に対して、ワークアラウンドを実装するよう注意喚起が行われた。
+
+Android は libpng、libxml2、libexif、zlib などのオープンソースライブラリを多数利用しており、アプリが利用する OS の機能によっては、これらオープンソースライブラリの脆弱性の影響を受ける。
+
+たとえば、2015年2月現在の最新の Android には libpng 1.6.10 が使用されているが、1.6.16 未満のバージョンの libpng にはヒープオーバーフローの脆弱性が指摘されている。 footnote:[”Fri May 09 15:15:10 2014 +0530 -- Update libpng from 1.6.3 to 1.6.10" 2015年2月20日現在、これ以降にlibpngのバージョンアップを示すコミットは含まれないことから、64-bit対応のAndroid端末において、CVE-2014-9495の影響を受ける可能性がある (https://android.googlesource.com/platform/external/libpng/%2B/b478e66e7c2621eef5f465e4629ce642db00716b)]
+
+他にも、ネットワーク通信や暗号処理を提供する API のバックエンドには OpenSSL が利用されているため、これらの API を利用するアプリは OpenSSL の脆弱性の影響を受ける可能性がある。footnote:[https://source.android.com/devices/tech/security/enhancements/enhancements42.html]
+
+iOSでは、2014年、NSXMLParser において、XML に含まれる外部エンティティの参照を無効化できないという脆弱性 (http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-4374[CVE-2014-4374]) が見つかっている。iOS8 では NSXMLParser で外部エンティティ参照の可否を設定するプロパティは機能しておらず脆弱性が再現する状態であったが、iOS8.3 において http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-1092[CVE-2015-1092] として https://support.apple.com/en-us/HT204661[再度修正]されている。
+
+libxml2 では外部エンティティ参照はデフォルトでは許可されていないため、iOS8.3 で修正されるまでの間、本脆弱性に対応するには、アプリ開発者は NSXMLParser ではなく libxml2 を利用する必要があった。
+
+=== 対策
+.サードパーティ製ライブラリを使用する
+Android では、OSのシステムライブラリを使用せずに第三者の提供するライブラリをアプリ自体に組み込むことができる場合もある。ライブラリの管理をアプリ開発者自身が行うことにより、脆弱なライブラリを含む端末を使用するユーザの被害を軽減できる場合がある。 https://crosswalk-project.org/[Crosswalk] はその1例である。
+
+.古い OS のサポートを打ち切る
+ビジネス上許容できるのであれば、脆弱性の存在する古いOSバージョンのサポートを打ち切るという選択肢もある。既に攻撃方法が開示されていたり悪用されている脆弱性であれば、アプリ利用者が攻撃を受ける危険性に配慮し、サポートを打ち切ると同時にユーザに対して注意喚起を行うことも望ましい。
+
+.脆弱性情報のモニタリング
+アプリが利用しているライブラリやOSの機能を把握し、OSのベンダーやセキュリティ関連機関が発信する脆弱性情報を継続的にモニタリングする。また、脆弱性が報告されているOSの機能を使わないよう開発ルールを定めるなど、脆弱性情報を開発にフィードバックする仕組み作りも重要となる。

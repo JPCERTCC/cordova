@@ -1,0 +1,71 @@
+== Cordova プラグイン
+=== Cordova プラグインの脆弱性
+
+Cordovaプラグインには、Table 2 の3件の脆弱性が Cigital 社の研究者 Neil Bergman 氏により報告されている。
+
+.Cordova プラグインの脆弱性
+[width="70%", cols="1,3", options="asciidoc"]
+|=======
+|CVE           |タイトル
+|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0072[CVE-2014-0072] |iOS版File-Transferプラグインのバージョン0.4.2未満におけるデフォルト設定時のサーバ証明書検証バイパス footnote:[http://seclists.org/fulldisclosure/2014/Mar/29)]
+|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0073[CVE-2014-0073] |iOS版In-App-Browserプラグインのバージョン0.3.2未満におけるJavaScriptインジェクションの脆弱性 footnote:[http://seclists.org/fulldisclosure/2014/Mar/30)]
+|N/A |Android 版のCustom URL Scheme (LaunchMyApp) プラグインのバージョン 3.2.1未満におけるリモート JavaScript インジェクションの脆弱性 footnote:[http://d3adend.org/blog/?p=426]
+|=======
+
+プラグインの脆弱性は過去に3件報告されているのみである。これは、Cordova を使用するハイブリッドアプリが比較的少なく、セキュリティ研究者の調査対象としてそれほど注目されていないためであり、プラグイン開発でも多くの脆弱性が作り込まれ多数潜在していると考えられる。
+
+プラグインは、JavaScript とネイティブコードの両方の実装を有することから、Web アプリの脆弱性とネイティブアプリの脆弱性の両方が作り込まれる恐れがある。
+
+プラグインに作り込まれる可能性の高い脆弱性の1例として、JavaScript インジェクションの脆弱性が考えられる。プラグインのネイティブコードにおいて、外部から渡された文字列を元に JavaScript のコードを組み立て WebView に挿入する処理を行っている場合、この脆弱性が作り込まれる可能性がある。
+
+Androidでは、CordovaWebView#sendJavascript() を用いることで、プラグインのネイティブコードから WebView に対して任意の JavaScript 文字列を実行させることが可能である。この API は今後廃止予定であるがfootnote:[https://issues.apache.org/jira/browse/CB-6851]、Cordova 3.7 では、プラグイン側から実行することができる。また、Android では、プラグインから CordovaWebView インスタンスに対するアクセスが可能であるため、外部から渡された javascript スキームの URL をプラグインが WebView.loadUrl() の第1引数に指定するような場合にも、任意の JavaScript が実行される恐れがある。
+
+iOS では、Android の sendJavascript() に相当する仕組みは提供されていないが、プラグインの Web アプリ側の実装が、ネイティブコードから受け取った文字列を eval() に渡すような作りになっている場合、プログラムの外から受け取った意図しない JavaScript コードの実行を許してしまう可能性が考えられる。
+
+=== 既知のプラグインの脆弱性
+==== File-Transfer プラグインにおける証明書検証不備 (CVE-2014-0072)
+
+https://github.com/apache/cordova-plugin-file-transfer/[File-Transfer] は、サーバとの間で、ローカルファイルのアップロードやダウンロードを行う際に使用されるプラグインである。multipart/form-data 形式の POST リクエストに対応しており、HTTP と HTTPS 通信をサポートしている。
+
+File-Transfer プラグインには、ローカルファイルをサーバにアップロードする upload 関数と、サーバからファイルを取得する download 関数が定義されている。
+
+upload 関数と download 関数には、boolean 型引数 trustAllHosts を指定できる。true が指定された場合、HTTPS でサーバと通信する際に、サーバの証明書の検証が行われない（デフォルト値は false）。
+
+iOS 版の File-Transfer プラグイン (バージョン 0.1.0 から 0.4.1 まで) では、trustAllHosts のデフォルト値が true になっており、アプリ開発者が明示的に false に指定しない限り、サーバ証明書検証が行われないという問題が発見された。footnote:[http://seclists.org/fulldisclosure/2014/Mar/29]
+
+この脆弱性は、File-Transfer プラグイン 0.4.2 で修正されている。
+
+==== InAppBrowser プラグインにおける任意の JavaScript 実行可能な脆弱性 (CVE-2014-0073)
+
+https://github.com/apache/cordova-plugin-inappbrowser/[InAppBrowser] は、Cordova アプリ上で、ブリッジを無効化したブラウザウィンドウを表示するプラグインである。ホワイトリストで許可されていない URL を Cordova アプリの上で安全に開くために利用される。
+
+[quote, https://github.com/apache/cordova-plugin-inappbrowser/, README.md]
+The InAppBrowser window behaves like a standard web browser, and can't access Cordova APIs. For this reason, the InAppBrowser is recommended if you need to load third-party (untrusted) content, instead of loading that into the main Cordova webview. The InAppBrowser is not subject to the whitelist, nor is opening links in the system browser.
+
+iOS版の In-app Browser プラグインには、プラグインの呼び出し元の UIWebView で、任意の JavaScript を実行可能な脆弱性が指摘されている (http://www.cigital.com/justice-league-blog/2014/05/20/inappbrowser-vulnerability/[CVE-2014-0073])。
+
+攻撃者は、プラグインが内部処理で利用する gap-iab: スキームの URL を悪用し、UIWebView へ任意の JavaScript を渡すことができる。プラグインは、UIWebView のページ遷移を webView:shouldStartLoadWithRequest:navigationType: 関数で監視しており、gap-iab: で始まる URL への遷移を検出した際に、新たなブラウザウィンドウを表示する。その際、ネイティブ側は、Web アプリ側からの要求を正常に受信したということを伝えるため、レスポンスの JavaScript を UIWebView に注入する。このレスポンスの JavaScript には、Web アプリ側が gap-iab: URL の path に指定した文字列が含まれていた。したがって、この処理を利用することで、悪意のある JavaScript を含む gap-iab: URL を Web アプリに開かせ、UIWebView 上で任意の JavaScript を実行させることができた。
+
+たとえば、次のようなシングルクォートを含む gap-iab: URL を開かせることで、攻撃コードが発動する。
+
+ gap-iab://InAppBrowser'-eval('alert(1);')-'.com
+
+この脆弱性は InAppBrowser プラグイン 0.3.2 で修正されている。
+
+==== Custom URL Scheme プラグインにおけるリモート JavaScript インジェクションの脆弱性
+
+https://github.com/EddyVerbruggen/Custom-URL-scheme[Custom URL Scheme] プラグインは、開発者が作成した Cordova アプリを、カスタムスキーム URL によって、他のアプリから起動できるようにするためのプラグインである。
+
+アプリ開発者は、自身のアプリを起動する際に使用するスキーム (例えば myapp://) を設定しておく。こうすることで、設定されたスキームの URL をユーザが他のアプリで開いた際に、開発者のアプリが起動される。
+
+Android 版のプラグインには、このプラグインを利用する Cordova アプリに対して、外部から任意の JavaScript を注入できる脆弱性が指摘されている。 http://d3adend.org/blog/?p=426[発見者のブログによると]、この脆弱性は 3.2.1 未満のバージョンに影響する。
+
+攻撃者は、JavaScript をデータとして含む暗黙的インテントをプラグインを使用するアプリに対して送信することで、アプリの WebView で現在開かれているページ上で任意の JavaScript を実行させることができる。脆弱性の原因は、プラグインが onNewIntent ハンドラの中で、暗黙的インテントを通じて外部から渡されたデータを javascript: URL に変換し、WebView#loadUrl の引数に渡していることにあった。
+
+脆弱性は Custom URL Scheme プラグイン 3.2.1 で修正されている。
+
+=== 対策方法
+
+アプリ開発者には、Cordova フレームワークと同様、プラグインについても、アップデートのリリース情報を継続的にモニタリングし、必要に応じてプラグインのアップデートを行うことが求められる。
+
+Cordova プロジェクトがメンテナンスしているプラグインの開発状況は、 https://issues.apache.org/jira/browse/CB/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel[Cordova の JIRA] で確認することができる。サードパーティ製プラグインのアップデート情報は、プラグインを配布している Github のページなどで確認できる。
