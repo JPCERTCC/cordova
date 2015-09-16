@@ -1,7 +1,7 @@
 == アプリ固有コード (JS)
 === 概要
 
-Cordova アプリでは、ネイティブアプリと同等のユーザインタフェースや機能を実現するために、HTML5 をはじめとする新しいウェブの技術が利用される。Web アプリ開発の知識が乏しいネイティブアプリのプログラマが Cordova アプリを開発するような場合、文字列のエスケープ漏れに起因する XSS などを誤って作り込む可能性がある。
+Cordova アプリでは、ネイティブアプリと同等のユーザインタフェースや機能を実現するために、HTML5 をはじめとする新しい Web の技術が利用される。Web アプリ開発の知識が乏しいネイティブアプリのプログラマが Cordova アプリを開発するような場合、文字列のエスケープ漏れに起因する XSS などを誤って作り込む可能性がある。
 
 従来の Web アプリでは、ユーザの入力値やサーバから取得したデータが XSS を誘発するデータの侵入経路であった。Cordova アプリでは、プラグインを通して取得した様々なデータが、侵入経路となる可能性がある。また、ローカルファイルシステムに保存された HTML や JavaScript のみで処理を完結するCordovaアプリが多く存在することから、DOM を組み立てる処理に起因する DOM Based XSS を作り込む可能性が高くなることも考えられる。
 
@@ -27,7 +27,7 @@ http://www.w3.org/TR/webdatabase/[Web SQL Database] は、構造化された大�
 
 Android 4.3 以下の WebView では Indexed Database API がサポートされていないため、構造化したデータを保存する際には Web SQL Database が利用される。
 
-iOS の UIWebView も Indexed Database API をサポートしていないため、2015年5月時点 では、Web SQL Database が利用される。iOS8 で搭載された WKWebView は Indexed Database API をサポートするが、Cordova が WKWebView に対応していないため、Cordova アプリで利用することはできない。
+iOS の UIWebView も Indexed Database API をサポートしていないため、2015年5月時点 では、Web SQL Database が利用される。iOS8 で搭載された WKWebView は Indexed Database API をサポートするが、調査時点では Cordova が WKWebView に対応していないため、Cordova アプリで利用することはできない。
 
 Web SQL Database には executeSql という関数が定義されており、任意のSQLクエリを実行することができる。executeSql はバインド機構をサポートしているが、アプリ開発者がこれを使わず、文字列の結合のみで SQL クエリを構築している場合、SQLインジェクションの脆弱性を作り込む恐れがある。
 
@@ -116,7 +116,7 @@ DOM Based XSS は、通常、外部から渡されたスクリプトを含むデ
 
 * HTML5で追加された Web Socket、Web Messaging、XMLHttpRequest、Server-Sent Event などを通じて他のサーバやドキュメントから取得したデータ
 
-* 外部から渡されたデータが、Web Storage、Web SQL Database、Indexed Database API などオフラインストレージに格納された場合、蓄積型 XSS が発現する可能性がある
+* 外部から渡されたデータが、Web Storage、Web SQL Database、Indexed Database API などオフラインストレージに格納された場合、クライアント側での蓄積型 XSS が発現する可能性がある
 
 主な出力経路としては次が考えられる。
 

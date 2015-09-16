@@ -44,7 +44,7 @@ Cordova が提供するホワイトリストを利用することで、信頼で
 * アプリのサーバ証明書検証に不備がある場合
 * 証明書ストアに信頼できないルートCA証明書がインストールされている場合
 
-Android 版の Cordova 3.5.1 未満を使用している場合、ホワイトリストを正しく使用していても、XAS (Cross-Application-Scripting) 脆弱性 http://jvndb.jvn.jp/ja/contents/2014/JVNDB-2014-005470.html[CVE-2014-3500] により、外部から JavaScript を注入される恐れがある。また、ホワイトリストで信頼されているオリジンの HTML に XSS の脆弱性がある場合、第三者から JavaScript を注入される恐れがある。
+Android 版の Cordova 4.0.2 未満(3.7.2を除く)を使用している場合、ホワイトリストを正しく使用していても、XAS (Cross-Application-Scripting) 脆弱性 http://cordova.apache.org/announcements/2015/05/26/android-402.html[CVE-2015-1835] により、外部から JavaScript を注入される恐れがある。また、ホワイトリストで信頼されているオリジンの HTML に XSS の脆弱性がある場合、第三者から JavaScript を注入される恐れがある。
 
 ==== 古いOSのサポートを打ち切る
 
@@ -63,7 +63,7 @@ WebView 互換のライブラリとしては次が存在する。
 ===== Crosswalk
 Crosswalk は Intel が中心となって開発が進められているオープンソースの WebView 実装である。最新の Chromium のソースコードを用いて頻繁に更新作業が続けられており、Crosswalk を使用することで端末の WebView が抱える既知の脆弱性の影響を受けることなく、アプリを開発することが可能になる。
 
-2015年4月には Crosswalk が公式にサポートされることが発表されている。footnote:[http://cordova.apache.org/announcements/2015/04/15/cordova-android-4.0.0.html] 4.x 系の Cordova では Crosswalk を Cordova プラグインとしてアプリに組み込むことができるようになり、アプリに組み込んだ場合、ビルド時に最新の Crosswalk ライブラリが自動的に組み込まれる。2015年6月25日時点、最新の安定版である Crosswalk 13.42.319.12 が組み込まれる。
+2015年4月には Crosswalk が公式にサポートされることが発表されている。footnote:[http://cordova.apache.org/announcements/2015/04/15/cordova-android-4.0.0.html] 4.x 系の Cordova では Crosswalk を Cordova プラグインとしてアプリに組み込むことができるようになり、アプリに組み込んだ場合、ビルド時に最新の Crosswalk ライブラリが自動的に組み込まれる。2015年6月25日時点、最新の安定版である Crosswalk 13.42.319.12 が組み込まれる。
 
 Crosswalk には次に挙げる課題が存在する。
 

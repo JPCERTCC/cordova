@@ -16,7 +16,7 @@ Cordovaプラグインには、Table 2 の3件の脆弱性が Cigital 社の研�
 
 プラグインは、JavaScript とネイティブコードの両方の実装を有することから、Web アプリの脆弱性とネイティブアプリの脆弱性の両方が作り込まれる恐れがある。
 
-プラグインに作り込まれる可能性の高い脆弱性の1例として、JavaScript インジェクションの脆弱性が考えられる。プラグインのネイティブコードにおいて、外部から渡された文字列を元に JavaScript のコードを組み立て WebView に挿入する処理を行っている場合、この脆弱性が作り込まれる可能性がある。
+プラグインに作り込まれる可能性の高い脆弱性の一例として、JavaScript インジェクションの脆弱性が考えられる。プラグインのネイティブコードにおいて、外部から渡された文字列を元に JavaScript のコードを組み立て WebView に挿入する処理を行っている場合、この脆弱性が作り込まれる可能性がある。
 
 Androidでは、CordovaWebView#sendJavascript() を用いることで、プラグインのネイティブコードから WebView に対して任意の JavaScript 文字列を実行させることが可能である。この API は今後廃止予定であるがfootnote:[https://issues.apache.org/jira/browse/CB-6851]、Cordova 3.7 では、プラグイン側から実行することができる。また、Android では、プラグインから CordovaWebView インスタンスに対するアクセスが可能であるため、外部から渡された javascript スキームの URL をプラグインが WebView.loadUrl() の第1引数に指定するような場合にも、任意の JavaScript が実行される恐れがある。
 
@@ -31,9 +31,9 @@ File-Transfer プラグインには、ローカルファイルをサーバにア
 
 upload 関数と download 関数には、boolean 型引数 trustAllHosts を指定できる。true が指定された場合、HTTPS でサーバと通信する際に、サーバの証明書の検証が行われない（デフォルト値は false）。
 
-iOS 版の File-Transfer プラグイン (バージョン 0.1.0 から 0.4.1 まで) では、trustAllHosts のデフォルト値が true になっており、アプリ開発者が明示的に false に指定しない限り、サーバ証明書検証が行われないという問題が発見された。footnote:[http://seclists.org/fulldisclosure/2014/Mar/29]
+iOS 版の File-Transfer プラグイン (バージョン 0.1.0 から 0.4.1 まで) では、trustAllHosts のデフォルト値が true になっており、アプリ開発者が明示的に false に指定しない限り、サーバ証明書検証が行われない。footnote:[http://seclists.org/fulldisclosure/2014/Mar/29]
 
-この脆弱性は、File-Transfer プラグイン 0.4.2 で修正されている。
+これは、File-Transfer プラグイン 0.4.2 で修正されている。
 
 ==== InAppBrowser プラグインにおける任意の JavaScript 実行可能な脆弱性 (CVE-2014-0073)
 
