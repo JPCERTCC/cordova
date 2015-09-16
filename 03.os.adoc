@@ -18,7 +18,7 @@ We have now determined that applications which use the Java Cryptography Archite
 
 Android は libpng、libxml2、libexif、zlib などのオープンソースライブラリを多数利用しており、アプリが利用する OS の機能によっては、これらオープンソースライブラリの脆弱性の影響を受ける。
 
-たとえば、2015年2月現在の最新の Android には libpng 1.6.10 が使用されているが、1.6.16 未満のバージョンの libpng にはヒープオーバーフローの脆弱性が指摘されている。 footnote:[”Fri May 09 15:15:10 2014 +0530 -- Update libpng from 1.6.3 to 1.6.10" 2015年2月20日現在、これ以降にlibpngのバージョンアップを示すコミットは含まれないことから、64-bit対応のAndroid端末において、CVE-2014-9495の影響を受ける可能性がある (https://android.googlesource.com/platform/external/libpng/%2B/b478e66e7c2621eef5f465e4629ce642db00716b)]
+たとえば、2015年2月現在の最新の Android には libpng 1.6.10 が使用されているが、1.6.16 未満のバージョンの libpng にはヒープオーバーフローの脆弱性が指摘されている。 footnote:["Fri May 09 15:15:10 2014 +0530 -- Update libpng from 1.6.3 to 1.6.10" 2015年2月20日現在、これ以降にlibpngのバージョンアップを示すコミットは含まれないことから、64-bit対応のAndroid端末において、CVE-2014-9495の影響を受ける可能性がある (https://android.googlesource.com/platform/external/libpng/%2B/b478e66e7c2621eef5f465e4629ce642db00716b)]
 
 他にも、ネットワーク通信や暗号処理を提供する API のバックエンドには OpenSSL が利用されているため、これらの API を利用するアプリは OpenSSL の脆弱性の影響を受ける可能性がある。footnote:[https://source.android.com/devices/tech/security/enhancements/enhancements42.html]
 

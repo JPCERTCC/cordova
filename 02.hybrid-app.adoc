@@ -58,17 +58,17 @@ Cordova 4.0.2 は、次の2系統のブリッジをサポートしている。
 Web アプリからネイティブアプリへの通信に使用される。次の2種類がある。
 
 1. WebView.addJavascriptInterface を利用する方法 footnote:[PROMPTとJS_OBJECTという2種類のブリッジがjsToNativeModesとして定義されている (https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L875)] footnote:[ブリッジの機能を提供するJavaのインスタンスをaddJavascriptInterfaceでWebViewに登録している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaWebView.java#L305)]
-2. JS で prompt() を呼び出し、それを WebChromeClient.onJsPrompt() でフックする方法 (PROMPT) footnote:[JavaScript 側では、window.prompt メソッドを通じてネイティブ側の機能にアクセスしている ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L353)] footnote:[Java 側では、Android の WebChromeClient#onJsPrompt を用いて window.prompt の実行をフックしている ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaChromeClient.java#L192)]
+2. JS で window.prompt() を呼び出し、それを WebChromeClient.onJsPrompt() でフックする方法 (PROMPT) footnote:[JavaScript 側では、window.prompt メソッドを通じてネイティブ側の機能にアクセスしている ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L353)] footnote:[Java 側では、Android の WebChromeClient#onJsPrompt を用いて window.prompt の実行をフックしている ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaChromeClient.java#L192)]
 
-addJavascriptInterface() のセキュリティ上の懸念から、Android 4.2 未満の端末では PROMPT のみが使われる。footnote:["Removing addJavascriptInterface support from all Android versions lower than 4.2 due to security vulnerability" ( https://github.com/apache/cordova-android/blob/3.6.x/RELEASENOTES.md)] Android 4.2 以降の端末では、初回の通信のみ PROMPT を使用し、その後の通信には JS_OBJECT が用いられる。PROMPT では、prompt() を呼び出したドキュメントのオリジンがネイティブ側のコードに通知されるので、ホワイトリストを用いた実行制限が可能である。一方で、PROMPT は UI スレッド上で動作することから、JS_OBJECT に比べてパフォーマンス上劣るという欠点がある。
+addJavascriptInterface() のセキュリティ上の懸念から、Android 4.2 未満の端末では PROMPT のみが使われる。footnote:["Removing addJavascriptInterface support from all Android versions lower than 4.2 due to security vulnerability" ( https://github.com/apache/cordova-android/blob/3.6.x/RELEASENOTES.md)] Android 4.2 以降の端末では、初回の通信のみ PROMPT を使用し、その後の通信には JS_OBJECT が用いられる。PROMPT では、window.prompt() を呼び出したドキュメントのオリジンがネイティブ側のコードに通知されるので、ホワイトリストを用いた実行制限が可能である。一方で、PROMPT は UI スレッド上で動作することから、JS_OBJECT に比べてパフォーマンス上劣るという欠点がある。
 
 .NativeToJsBridge
 ネイティブアプリから Web アプリへの通信に使用されるもので、次の4種類が存在する。footnote:[POLLING、LOADURL、ONLINEEVENT、PRIVATE_API の4種類のブリッジが nativeToJsModes として定義されている ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L878)]
 
 1. JsToNative ブリッジを用いて、ネイティブから送信するデータの有無をポーリングで確認する方法 (POLLING) footnote:[POLLING ブリッジは、window.setTimeout を使って定期的にネイティブ側からのメッセージをポーリングで処理している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L1012)] footnote:[pollOnce は 6 のポーリング処理の中で呼び出される関数。retrieveJsMessages でネイティブからメッセージを受け取り、processMessagesで処理している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L949)]
-2. WebView.loadUrl("javascript:") を用いて Native 側から JavaScript を注入する方法 footnote:[javascript: URL を WebView#loadUrl に渡すことにより、HTML文書にネイティブ側からのメッセージをJavaScriptとして注入している]
-3. ネットワークの ON/OFF をトグルし、送信するデータの発生を window.ononline() で JS に通知する方法 (ONLINE_EVENT) footnote:[WebView#setNetworkAvailable をトグルすることにより、ネイティブ側でメッセージを送る準備ができたことをJavaScript側に通知している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L320)]
-4. WebView の sendMessage() という Private API をリフレクションで実行し、Native 側からメッセージを送信する方法 (PRIVATE_API)footnote:[リフレクションにより、 WebViewCore の sendMessage という隠しメソッドを呼び出して、JavaScript 側にメッセージを送信している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L379)]
+2. WebView.loadUrl("javascript:") を用いてネイティブ側から JavaScript を注入する方法 footnote:[javascript: URL を WebView#loadUrl に渡すことにより、HTML文書にネイティブ側からのメッセージをJavaScriptとして注入している]
+3. ネットワークの ON/OFF をトグルし、送信するデータの発生を window.ononline() で JavaScript に通知する方法 (ONLINE_EVENT) footnote:[WebView#setNetworkAvailable をトグルすることにより、ネイティブ側でメッセージを送る準備ができたことをJavaScript側に通知している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L320)]
+4. WebView の sendMessage() という Private API をリフレクションで実行し、ネイティブ側からメッセージを送信する方法 (PRIVATE_API)footnote:[リフレクションにより、 WebViewCore の sendMessage という隠しメソッドを呼び出して、JavaScript 側にメッセージを送信している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L379)]
 
 NativeToJsBridge では ONLINE_EVENT のみが使用される。footnote:[ONLINE_EVENT が nativeToJsBridgeMode の初期値に指定されている。ブリッジはsetNativeToJsBridgeMode関数で変更できるが、Cordovaのコードでこの関数を実行している箇所はない ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L894)] ONLINE_EVENTでは、ネイティブから JavaScript に直接データを渡すのではない点に注意が必要である。JavaScript は online イベントの発生を契機に、JsToNativeBridge を用いて自らデータを取得する。footnote:[online イベントのハンドラに pollOnceFromOnlineEvent 関数が指定されている。この関数は、内部で JsToNativeBridge を利用してネイティブ側のメッセージを読み出している ( https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L974)]
 
@@ -86,9 +86,9 @@ Cordova-iOS 3.7.0 は、次のブリッジをサポートしている。
 
 2. XmlHttpRequest を呼び出し、リクエストの発生をネイティブの NSURLProtocol 派生クラスの canInitWithRequest でフックする方法
 
-1と２のいずれも、Webアプリ上でのリソース取得要求をネイティブのコードでフックすることにより実現されている。
+1と2のいずれも、Webアプリ上でのリソース取得要求をネイティブのコードでフックすることにより実現されている。
 
-iframe によるブリッジでは、gap:// で始まる URL へのアクセスが、Native の機能呼出しとして解釈されるのに対し、XMLHttpRequest によるブリッジでは、/!gap_exec というパスに対するアクセスが、Native の機能呼出しとして解釈される。
+iframe によるブリッジでは、gap:// で始まる URL へのアクセスが、ネイティブの機能呼び出しとして解釈されるのに対し、XMLHttpRequest によるブリッジでは、/!gap_exec というパスに対するアクセスが、ネイティブの機能呼び出しとして解釈される。
 
 過去のバージョンの Cordova では、XMLHttpRequest がデフォルトで使用されていたが、現在は iframe がデフォルトになっている。footnote:["In Cordova 2.1.0 for iOS, we changed the default bridge mode from using an iframe to using xhr (XmlHttpRequest). This has proved to fix some UI issues and possibly fix crash issues.　In iOS 4.2.1 however, Cordova defaults back to iframe mode because of a bug" (https://github.com/apache/cordova-ios/blob/3.7.x/guides/Changing%20the%20JavaScript%20to%20Native%20Bridge%20Mode.md)] 変更は、過去の iOS のバグに起因するものであるが、iframe は性能面でも XMLHttpRequest と比べて有利であると考えられる。footnote:["IFRAME_NAV is the fastest." "とのコメントから IFRAME ブリッジが性能面で有利であると考えられる (https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L821)]
 
@@ -96,22 +96,22 @@ iframe によるブリッジでは、gap:// で始まる URL へのアクセス�
 
 次の1種類のブリッジをサポートしている。
 
-* UIWebView の stringByEvaluatingJavaScriptFromString: を通じて、ネイティブから JS を注入する方法
+* UIWebView の stringByEvaluatingJavaScriptFromString: を通じて、ネイティブから JavaScript を注入する方法
 
-iOS8 で追加された WKWebView について補足する。JavaScript から Native へのブリッジとして、WKWebView に追加された Script Messages の追加実装は2015年6月の時点で完了しており、今後正式にリリースされる見込みである。この機能は、JavaScript から https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L986[window.webkit.messageHandlers.cordova.postMessage(command)] という方法でコマンドを送信する。
+iOS8 で追加された WKWebView について補足する。JavaScript からネイティブへのブリッジとして、WKWebView に追加された Script Messages の追加実装は2015年6月の時点で完了しており、今後正式にリリースされる見込みである。この機能は、JavaScript から https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L986[window.webkit.messageHandlers.cordova.postMessage(command)] という方法でコマンドを送信する。
 
 ==== ホワイトリスト
 
 Cordova では、WebView 上にロードされたページからブリッジに対するアクセスが常に許可されている。したがって、信頼できないページを開いた場合、ブリッジを悪用され、アプリの権限で任意の処理が行われる危険がある。
 そのようなリスクを低減する機能として、Cordova は「ホワイトリスト」と呼ばれる保護機能を備えており、アプリ開発者が信頼するオリジン以外からのリソース取得を制限することができる。
 
-Android 版 Cordova 4.x では、ホワイトリストが Cordova 本体から分離し、プラグインとして別配布される仕様に変更されている。footnote:[　　https://cordova.apache.org/docs/en/edge/guide_appdev_whitelist_index.md.html#Whitelist%20Guide] footnote:[https://github.com/apache/cordova-plugin-whitelist] アプリに Whitelist のプラグインを組み込まない場合、ブリッジへのアクセスは一切保護されない。また、Cordova CLI で Android アプリのプロジェクトを構築した場合 (cordova platform add android を実行した場合)、Whitelist プラグインが自動的に組み込まれる。
+Android 版 Cordova 4.x では、ホワイトリストが Cordova 本体から分離し、プラグインとして別配布される仕様に変更されている。footnote:[　　https://cordova.apache.org/docs/en/edge/guide_appdev_whitelist_index.md.html#Whitelist%20Guide] footnote:[https://github.com/apache/cordova-plugin-whitelist] アプリにホワイトリストのプラグインを組み込まない場合、ブリッジへのアクセスは一切保護されない。また、Cordova CLI で Android アプリのプロジェクトを構築した場合 (cordova platform add android を実行した場合)、Whitelist プラグインが自動的に組み込まれる。
 
 2015年6月25日時点では、Cordova 4.x の新仕様に基づく Whitelist プラグイン「cordova-plugin-whitelist」と 3.x との互換性維持を目的とした「cordova-plugin-legacy-whitelist」の2種類の Whitelist プラグインが提供されているが、後者は安全性に劣るため、利用は推奨されない。
 
 Android 版 Cordova 3.x とiOS 版のホワイトリストは、config.xmlの「&lt;access origin="[origin]" /&gt;」句によって宣言する。リストの初期値は「*」、つまり全てのドメインを許可する状態であるため、適切に設定する必要がある。Android 版 Cordova 4.x の cordova-plugin-legacy-whitelist も同様に動作する。
 
-Android 版 Cordova 4.x ではホワイトリストの仕様が変更され、従来のホワイトリストが次の3種類に分割された。footnote:[https://github.com/apache/cordova-plugin-whitelist]
+Android 版 Cordova 4.x ではホワイトリストの仕様が変更され、従来のホワイトリストが次の3種類に分割された。footnote:[https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/README.md]
 
 .Navigation Whitelist (allow-navigation)
 
@@ -125,9 +125,9 @@ Android 版 Cordova 4.x ではホワイトリストの仕様が変更され、�
 
 * <access origin> を再利用し、XHR や iframe といったサブリソースの参照先を制限する。デフォルトの定義値は「{asterisk}」で、任意のオリジンからサブリソースを取得することができる。
 * iframe 内で開くことのできるページのオリジンは本ホワイトリストまたは Navigation Whitelist のいずれかで登録できる
-* Navigation Whitelist で指定した場合に限り、iframe 内の HTML コンテンツからブリッジに対してアクセスができる。つまり、JS からブリッジにはアクセスはできるが、有効な bridge secret の値が発行されていないため、各種プラグインへはアクセスできない
+* Navigation Whitelist で指定した場合に限り、iframe 内の HTML コンテンツからブリッジに対してアクセスができる。つまり、JavaScript からブリッジにはアクセスはできるが、有効な bridge secret の値が発行されていないため、各種プラグインへはアクセスできない
 
-Android 4.x では、Whitelist プラグインを組み込んだ場合、HTML 文書に Content Security Policy (CSP) を指定することが要求される。Android OS 側の制限により、新仕様である Network Request Whitelist を使っても十分なアクセス制御を行うことができないため、CSP の利用が推奨されている。Whitelist プラグインを組み込むと、HTML 文書の中に meta タグで CSP が指定されていない場合、30秒おきにコンソールへ警告ログが出力され、CSP を適用するよう促される。footnote:[https://github.com/apache/cordova-plugin-whitelist/blob/master/whitelist.js#L21]
+Android 4.x では、Whitelist プラグインを組み込んだ場合、HTML 文書に Content Security Policy (CSP) を指定することが要求される。Android OS 側の制限により、新仕様である Network Request Whitelist を使っても十分なアクセス制御を行うことができないため、CSP の利用が推奨されている。Whitelist プラグインを組み込むと、HTML 文書の中に meta タグで CSP が指定されていない場合、10秒おきにコンソールへ警告ログが出力され、CSP を適用するよう促される。footnote:[https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/whitelist.js#L21]
 
 ホワイトリストは過去に複数の実装上の脆弱性が指摘されており、その一部は現在も解決されていない。たとえば、Android API 10 以下ではホワイトリストが機能しない。footnote:["Domain whitelisting does not work on Android API 10 and below, and WP8 for iframes and XMLHttpRequest. This means an attacker can load any domain in an iframe and any script on that page within the iframe can directly access Cordova JavaScript objects and the corresponding native Java objects." (http://cordova.apache.org/docs/en/4.0.0/guide_appdev_security_index.md.html)]また、ホワイトリストには、運用面での課題も指摘されている。ホワイトリストの制限事項および課題については、以降の章で詳細に検討する。
 
@@ -139,7 +139,7 @@ Cordovaを用いて作成された一般的なAndroid/iOSアプリと動作環�
     2. WebView
     3. Cordova
     4. Cordova Plugins
-    5. アプリ固有コード(JS)
+    5. アプリ固有コード(JavaScript)
     6. アプリ固有コード(ネイティブ)
     7. ネットワーク
     8. サーバ

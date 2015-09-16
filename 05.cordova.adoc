@@ -21,7 +21,7 @@
 
 2014年10月、Google は、Google Play で Cordova を使用したハイブリッドアプリを公開している開発者に対し、Cordova のバージョンを 3.5.1 以上に更新することを促す注意喚起のメッセージを送付している。footnote:[http://community.phonegap.com/nitobi/topics/security-alert-apache-cordova-vulnerabilities-in-your-google-play-app] アップデートを放置した場合、対象となるアプリは "dangerous products" と判断され、Google Play から削除される可能性があるとされているが、本調査では、実際に削除されたアプリの有無を確認していない。
 
-CVE-2014-3501 は、Android の仕様に起因する脆弱性であり、2015年2月現在、修正されていない。脆弱性の発見者は、アプリ開発者が CSP を使って対策することを論文の中で提案している。 footnote:[http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework] footnote:[https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-_Remote_Exploitation_of_Cordova_for_Android_-_David_Kaplan_-_Roee_Hay.pdf]
+CVE-2014-3501 は、Android の仕様に起因する脆弱性であり、2015年2月現在、修正されていない。脆弱性の発見者は、アプリ開発者が CSP を使って対策することを論文の中で提案している。 footnote:[http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework] footnote:[https://www.owasp.org/index.php/AppSec_Israel_2014_Presentations#The_Bank_Job_-_Mobile_Edition._Remote_Exploitation_of_the_Cordova_Framework_for_Android]
 
 ==== iOS
 
@@ -30,7 +30,7 @@ error or something closer to "known behavior." This behavior does not
 seem to be referenced in the apachecordovaphonegap-bypass.txt summary" (http://openwall.com/lists/oss-security/2014/02/07/9)]
 
 === ホワイトリスト
-==== メカニズム
+==== メカニズム(Cordova 3.x)
 ホワイトリストは、WebView 上でアクセス可能なリソースをあらかじめ指定したドメインのみに制限するためのセキュリティ機能である。アプリ開発者は、Cordova アプリの config.xml に &lt;access origin="[origin]" /&gt; のように記述することでホワイトリストを定義することができる。この仕様は http://www.w3.org/TR/widgets-access/[W3C Widget Access] に基づいている。
 
 たとえば、google.com のすべてのサブドメイン (たとえば mail.google.com や docs.googlee.com) へのアクセスを許可したい場合、次のように指定する。
@@ -72,15 +72,13 @@ seem to be referenced in the apachecordovaphonegap-bypass.txt summary" (http://o
 ===== iOS
 
 * ホワイトリストに何も指定しない場合でも、file:、content:、data:に対するアクセスは無条件で許可される footnote:[Cordova の初期化時に config.xml を解析するオブジェクトの実装。オブジェクトの初期化時に file://{asterisk}, content://{asterisk}, data://{asterisk} をホワイトリストに追加している(https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVConfigParser.m#L43)]
-** Android とは異なり、data: スキームの HTML ドキュメントからブリッジに対するアクセスが許可される footnote:[ブリッジの呼び出しを確認するshouldStartLoadWithRequest: の中で、data: URLからの呼び出しが許可されている (https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVViewController.m#L794)]
-** 攻撃者は、data: URLのリンクを通じて悪意のあるHTMLを開かせることにより、ホワイトリストの制限を回避してブリッジを操作できる
 
 * アクセス先の URL が sms: や mailto: などのカスタム URL スキームである場合、その URL を処理できるアプリが開かれる。
 ** Android 版 Cordova では、同様の実装が脆弱性として指摘され (CVE-2014-3502)、対策として、External Application Whitelist という機能が実装されているが、iOS 版 Cordova には、2015年2月時点、External Application Whitelist と同様の仕組みが存在しない
 
 * Android 版 Cordova と同様に、ホワイトリストの設定時にオリジンのプロトコルスキームを省略した場合、http と https でのアクセスを許可する。footnote:[スキームが指定されなかった場合、スキームを http, https としてホワイトリストに2つのエントリーを追加している(https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVViewController.m#L794)] したがって、プロトコルスキームを省略した場合に意図せず http 通信を行い、中間者攻撃の影響を受ける可能性がある
 
-* origin="https://{asterisk}.{asterisk}.google.com" というように、サブドメインに「\*.」を2つ以上連続で指定した場合、正規表現の不備によりホスト名が「{asterisk}」のみとなる footnote:[ホスト名を抽出する正規表現は {asterisk}. の後に {asterisk}. が再度来るケースを想定していないため、{asterisk}.{asterisk}.google.comの場合は {asterisk} がホスト名となってしまう(https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVWhitelist.m#L172)] このため、開発者が意図せず全てのホスト名をホワイトリストで許可してしまう可能性がある。
+* origin="https://{asterisk}.{asterisk}.google.com" というように、サブドメインに「{asterisk}.」を2つ以上連続で指定した場合、正規表現の不備によりホスト名が「{asterisk}」のみとなる footnote:[ホスト名を抽出する正規表現は {asterisk}. の後に {asterisk}. が再度来るケースを想定していないため、{asterisk}.{asterisk}.google.comの場合は {asterisk} がホスト名となってしまう(https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVWhitelist.m#L172)] このため、開発者が意図せず全てのホスト名をホワイトリストで許可してしまう可能性がある。
 
 ==== 運用上の課題
 
@@ -114,13 +112,13 @@ Cordova をアップデートした場合、リグレッションが発生する
 ==== CSP の利用
 https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP] (Content Security Policy) は、XSS やデータインジェクションといったWebアプリに対する攻撃を緩和する保護機能である。
 
-W3C により標準化が進められており、2015年2月現在、 http://www.w3.org/TR/CSP/[CSP 1.0] が Candidate Recommendation、 http://www.w3.org/TR/CSP2/[CSP Level 2] が Last Call Working Draft である。CSP 1.0 は XSS に代表される不正なコンテンツを注入する攻撃の軽減に注力しており、CSP Level 2 では、さらに広い範囲の攻撃を緩和することを目指している。X-Frame-Options や X-XSS-Protection といった既にブラウザに搭載されている保護機能は、今後は廃止されて、CSP に統合されることになっている。
+W3C により標準化が進められており、2015年9月現在、 http://www.w3.org/TR/CSP/[CSP 1.0] 及び、それに改良を加えた http://www.w3.org/TR/CSP2/[CSP Level 2] が Candidate Recommendation である。CSP 1.0 は XSS に代表される不正なコンテンツを注入する攻撃の軽減に注力しており、CSP Level 2 では、さらに広い範囲の攻撃を緩和することを目指している。X-Frame-Options や X-XSS-Protection といった既にブラウザに搭載されている保護機能は、今後は廃止されて、CSP に統合されることになっている。
 
 Cordova アプリにおいても、CSPを適切に活用することで、悪性コードによるブリッジの悪用や、ホワイトリストの穴を突いた攻撃の緩和を期待できる。しかし、CSP を利用できる OS は、Android 4.4 以上および iOS 7 以上であり、特に Android においては CSP をサポートする端末の普及が十分とは言えないのが現状である。
 
-Android 4.0 以降の端末では、標準の WebView の代わりに Crosswalk を利用することでCSPを使用できる。 footnote:[https://crosswalk-project.org/documentation/manifest/content_security_policy.html] Crosswalk は、Chrome ブラウザと同等の CSP が利用できる上、W3C の Manifest for web application に対応しており、Manifest ファイルを用いて WebView の外から CSP を適用できる。
+Android 4.0 以降の端末では、標準の WebView の代わりに Crosswalk を利用することでCSPを使用できる。 footnote:[https://crosswalk-project.org/documentation/manifest/content_security_policy.html] Crosswalk は、Chrome ブラウザと同等の CSP が利用できる上、W3C の http://www.w3.org/TR/appmanifest/[Manifest for web application] に対応しており、Manifest ファイルを用いて WebView の外から CSP を適用できる。
 
-Android 版 Cordova は現時点では CSP に対応していないため、CSP の保護機能の一部を無効化する必要がある。CSP には、文字列から JavaScript のコードを動的生成するようなメソッド (eval等) の実行を制限する機能が存在する。 footnote:[http://www.w3.org/TR/CSP/#script-src] しかし、現在配布されている Android 版 Cordova 3.6.4 では、一部の処理に eval が用いられているため、この制限を適用できない。
+Android 版 Cordova は現時点では CSP に対応していないため、CSP の保護機能の一部を無効化する必要がある。CSP には、文字列から JavaScript のコードを動的生成するようなメソッド (eval等) の実行を制限する機能が存在する。 footnote:[http://www.w3.org/TR/CSP/#directive-script-src] しかし、Android 版 Cordova 3.6.4 では、一部の処理に eval が用いられているため、この制限を適用できない。
 
 iOS 版 Cordova は CSP に対応しており、CSP でインラインスクリプトや eval の使用制限を施しても動作する。ただし、JavaScript からネイティブ側へのブリッジに iframe を使用するため、CSP の frame-src 句に「gap:」を指定し、ブリッジアクセスの際に使われる gap スキームの URL をフレーム内で開くことを許可しなければならない。
 
