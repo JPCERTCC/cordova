@@ -36,3 +36,7 @@
 全ての章を統合した HTML ファイル (all.html) は、 http://asciidoctor.org/[asciidoctor] を使い、次のコマンドで生成しています。
 
     % asciidoctor -b html5 -d book -a toc2 -n all.adoc
+
+== Acknowledgements
+
+Thanks https://twitter.com/azu_re[@azu_re] for contributing content and fixes to this project!
