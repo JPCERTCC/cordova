@@ -1,6 +1,6 @@
 = 「Apache Cordova」を使ったハイブリッドアプリケーションの脆弱性に関する調査
 一般社団法人 JPCERT コーディネーションセンター 脆弱性解析チーム <secure-coding@jpcert.or.jp>
-v1.0, 2015-09-14
+v1.0, 2015-09-17
 :toc:
 :homepage: https://www.jpcert.or.jp
 
