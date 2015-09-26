@@ -33,11 +33,11 @@ seem to be referenced in the apachecordovaphonegap-bypass.txt summary" (http://o
 ==== メカニズム(Cordova 3.x)
 ホワイトリストは、WebView 上でアクセス可能なリソースをあらかじめ指定したドメインのみに制限するためのセキュリティ機能である。アプリ開発者は、Cordova アプリの config.xml に &lt;access origin="[origin]" /&gt; のように記述することでホワイトリストを定義することができる。この仕様は http://www.w3.org/TR/widgets-access/[W3C Widget Access] に基づいている。
 
-たとえば、google.com のすべてのサブドメイン (たとえば mail.google.com や docs.googlee.com) へのアクセスを許可したい場合、次のように指定する。
+たとえば、google.com のすべてのサブドメイン (たとえば mail.google.com や docs.google.com) へのアクセスを許可したい場合、次のように指定する。
 
  <access origin="http://*.google.com" />
 
-ホワイトリストは Cordova が備える唯一のセキュリティ保護機能であり、アプリに脆弱性が存在する場合、攻撃のリスクを軽減する効果を持つ。しかし、ホワイトリストの指定方法の柔軟さ、実装上の制限、運用の難しさなどから、アプリの開発者が適切にホワイトリストには、多くの課題がある。
+ホワイトリストは Cordova が備える唯一のセキュリティ保護機能であり、アプリに脆弱性が存在する場合、攻撃のリスクを軽減する効果を持つ。しかし、ホワイトリストの指定方法の柔軟さ、実装上の制限、運用の難しさなどから、アプリの開発者が適切にホワイトリストを設定するには、多くの課題がある。
 
 ホワイトリストの初期値はすべてのドメインへのアクセスを許可する。
 
