@@ -416,7 +416,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">一般社団法人 JPCERT コーディネーションセンター 脆弱性解析チーム &lt;secure-coding@jpcert.or.jp&gt;</span><br>
 <span id="revnumber">version 1.0,</span>
-<span id="revdate">2015-09-17</span>
+<span id="revdate">2015-09-26</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1103,7 +1103,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>ホワイトリストは、WebView 上でアクセス可能なリソースをあらかじめ指定したドメインのみに制限するためのセキュリティ機能である。アプリ開発者は、Cordova アプリの config.xml に &lt;access origin="[origin]" /&gt; のように記述することでホワイトリストを定義することができる。この仕様は <a href="http://www.w3.org/TR/widgets-access/">W3C Widget Access</a> に基づいている。</p>
 </div>
 <div class="paragraph">
-<p>たとえば、google.com のすべてのサブドメイン (たとえば mail.google.com や docs.googlee.com) へのアクセスを許可したい場合、次のように指定する。</p>
+<p>たとえば、google.com のすべてのサブドメイン (たとえば mail.google.com や docs.google.com) へのアクセスを許可したい場合、次のように指定する。</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1111,7 +1111,7 @@ We have now determined that applications which use the Java Cryptography Archite
 </div>
 </div>
 <div class="paragraph">
-<p>ホワイトリストは Cordova が備える唯一のセキュリティ保護機能であり、アプリに脆弱性が存在する場合、攻撃のリスクを軽減する効果を持つ。しかし、ホワイトリストの指定方法の柔軟さ、実装上の制限、運用の難しさなどから、アプリの開発者が適切にホワイトリストには、多くの課題がある。</p>
+<p>ホワイトリストは Cordova が備える唯一のセキュリティ保護機能であり、アプリに脆弱性が存在する場合、攻撃のリスクを軽減する効果を持つ。しかし、ホワイトリストの指定方法の柔軟さ、実装上の制限、運用の難しさなどから、アプリの開発者が適切にホワイトリストを設定するには、多くの課題がある。</p>
 </div>
 <div class="paragraph">
 <p>ホワイトリストの初期値はすべてのドメインへのアクセスを許可する。</p>

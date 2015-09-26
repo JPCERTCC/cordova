@@ -39,4 +39,4 @@
 
 == Acknowledgements
 
-Thanks https://twitter.com/azu_re[@azu_re] and https://github.com/nishimunea[nishimunea] for contributing content and fixes to this project!
+Thanks https://twitter.com/azu_re[@azu_re], https://github.com/nishimunea[nishimunea] and https://github.com/yujitounai[yujitounai] for contributing content and fixes to this project!
