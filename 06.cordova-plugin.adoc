@@ -1,18 +1,20 @@
 == Cordova プラグイン
 === Cordova プラグインの脆弱性
 
-Cordovaプラグインには、Table 2 の3件の脆弱性が Cigital 社の研究者 Neil Bergman 氏により報告されている。
+Cordovaプラグインには、Table 2 の4件の脆弱性がこれまでに指摘されている。内3件は Cigital 社の研究者 Neil Bergman 氏により報告されたものであり、1件は本調査の中で発見したものである。
 
 .Cordova プラグインの脆弱性
 [width="70%", cols="1,3", options="asciidoc"]
 |=======
 |CVE           |タイトル
-|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0072[CVE-2014-0072] |iOS版File-Transferプラグインのバージョン0.4.2未満におけるデフォルト設定時のサーバ証明書検証バイパス footnote:[http://seclists.org/fulldisclosure/2014/Mar/29)]
-|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0073[CVE-2014-0073] |iOS版In-App-Browserプラグインのバージョン0.3.2未満におけるJavaScriptインジェクションの脆弱性 footnote:[http://seclists.org/fulldisclosure/2014/Mar/30)]
+|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0072[CVE-2014-0072] |iOS版File-Transferプラグインのバージョン0.4.2未満におけるデフォルト設定時のサーバ証明書検証バイパス footnote:[http://seclists.org/fulldisclosure/2014/Mar/29]
+|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0073[CVE-2014-0073] |iOS版In-App-Browserプラグインのバージョン0.3.2未満におけるJavaScriptインジェクションの脆弱性 footnote:[http://seclists.org/fulldisclosure/2014/Mar/30]
 |N/A |Android 版のCustom URL Scheme (LaunchMyApp) プラグインのバージョン 3.2.1未満におけるリモート JavaScript インジェクションの脆弱性 footnote:[http://d3adend.org/blog/?p=426]
+|http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5204[CVE-2015-5204] |Android版File-Transferプラグインのバージョン1.2.1以下におけるHTTPリクエストヘッダインジェクションの脆弱性 footnote:[https://cordova.apache.org/news/2015/09/21/file-transfer-release.html]
+
 |=======
 
-プラグインの脆弱性は過去に3件報告されているのみである。これは、Cordova を使用するハイブリッドアプリが比較的少なく、セキュリティ研究者の調査対象としてそれほど注目されていないためであり、プラグイン開発でも多くの脆弱性が作り込まれ多数潜在していると考えられる。
+プラグインの脆弱性は過去に3件報告されているのみであった。これは、Cordova を使用するハイブリッドアプリが比較的少なく、セキュリティ研究者の調査対象としてそれほど注目されていないためであり、プラグイン開発でも多くの脆弱性が作り込まれ多数潜在していると考えられる。
 
 プラグインは、JavaScript とネイティブコードの両方の実装を有することから、Web アプリの脆弱性とネイティブアプリの脆弱性の両方が作り込まれる恐れがある。
 
