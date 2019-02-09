@@ -4,21 +4,19 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="一般社団法人 JPCERT コーディネーションセンター 脆弱性解析チーム &lt;secure-coding@jpcert.or.jp&gt;">
 <title>「Apache Cordova」を使ったハイブリッドアプリケーションの脆弱性に関する調査</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
-/* Remove the comments around the @import statement below when using this as a custom stylesheet */
-/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400";*/
+/* Uncomment @import statement below to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
 article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
 audio,canvas,video{display:inline-block}
 audio:not([controls]){display:none;height:0}
-[hidden],template{display:none}
 script{display:none!important}
 html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
-body{margin:0}
 a{background:transparent}
 a:focus{outline:thin dotted}
 a:active,a:hover{outline:0}
@@ -46,19 +44,16 @@ button,select{text-transform:none}
 button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
 button[disabled],html input[disabled]{cursor:default}
 input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
-input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}
-input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
 button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
 textarea{overflow:auto;vertical-align:top}
 table{border-collapse:collapse;border-spacing:0}
-*,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
 html,body{font-size:100%}
-body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
 a:hover{cursor:pointer}
 img,object,embed{max-width:100%;height:auto}
 object,embed{height:100%}
 img{-ms-interpolation-mode:bicubic}
-#map_canvas img,#map_canvas embed,#map_canvas object,.map_canvas img,.map_canvas embed,.map_canvas object{max-width:none!important}
 .left{float:left!important}
 .right{float:right!important}
 .text-left{text-align:left!important}
@@ -66,11 +61,11 @@ img{-ms-interpolation-mode:bicubic}
 .text-center{text-align:center!important}
 .text-justify{text-align:justify!important}
 .hide{display:none}
-.antialiased,body{-webkit-font-smoothing:antialiased}
-img{display:inline-block;vertical-align:middle}
+img,object,svg{display:inline-block;vertical-align:middle}
 textarea{height:auto;min-height:50px}
 select{width:100%}
-p.lead,.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{font-size:1.21875em;line-height:1.6}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
 .subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
 div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
 a{color:#2156a5;text-decoration:underline;line-height:inherit}
@@ -85,19 +80,18 @@ h2{font-size:1.6875em}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
 h4,h5{font-size:1.125em}
 h6{font-size:1em}
-hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
 em,i{font-style:italic;line-height:inherit}
 strong,b{font-weight:bold;line-height:inherit}
 small{font-size:60%;line-height:inherit}
 code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
 ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
-ul,ol,ul.no-bullet,ol.no-bullet{margin-left:1.5em}
+ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
 ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
 ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
-ul.no-bullet{list-style:none}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -105,95 +99,111 @@ abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-
 abbr{text-transform:none}
 blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
 blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
-blockquote cite:before{content:"\2014 \0020"}
+blockquote cite::before{content:"\2014 \0020"}
 blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
 blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
-@media only screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
 h1{font-size:2.75em}
 h2{font-size:2.3125em}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
-h4{font-size:1.4375em}}table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
-table thead,table tfoot{background:#f7f8f7;font-weight:bold}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
 table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
 table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
 table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
 table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
 h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
 h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
-.clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
-.clearfix:after,.float-group:after{clear:both}
-*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
 pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
 .keyseq{color:rgba(51,51,51,.8)}
-kbd{display:inline-block;color:rgba(0,0,0,.8);font-size:.75em;line-height:1.4;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:-.15em .15em 0 .15em;padding:.2em .6em .2em .5em;vertical-align:middle;white-space:nowrap}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
 .keyseq kbd:first-child{margin-left:0}
 .keyseq kbd:last-child{margin-right:0}
-.menuseq,.menu{color:rgba(0,0,0,.8)}
-b.button:before,b.button:after{position:relative;top:-1px;font-weight:400}
-b.button:before{content:"[";padding:0 3px 0 2px}
-b.button:after{content:"]";padding:0 2px 0 3px}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
 p a>code:hover{color:rgba(0,0,0,.9)}
 #header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
-#header:before,#header:after,#content:before,#content:after,#footnotes:before,#footnotes:after,#footer:before,#footer:after{content:" ";display:table}
-#header:after,#content:after,#footnotes:after,#footer:after{clear:both}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
 #content{margin-top:1.25em}
-#content:before{content:none}
+#content::before{content:none}
 #header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
-#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
-#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
-#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
 #header .details span:first-child{margin-left:-.125em}
 #header .details span.email a{color:rgba(0,0,0,.85)}
 #header .details br{display:none}
-#header .details br+span:before{content:"\00a0\2013\00a0"}
-#header .details br+span.author:before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
-#header .details br+span#revremark:before{content:"\00a0|\00a0"}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
 #header #revnumber{text-transform:capitalize}
-#header #revnumber:after{content:"\00a0"}
-#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
-#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
 #toc>ul{margin-left:.125em}
 #toc ul.sectlevel0>li>a{font-style:italic}
 #toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
 #toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
 #toc a{text-decoration:none}
 #toc a:active{text-decoration:underline}
 #toctitle{color:#7a2518;font-size:1.2em}
-@media only screen and (min-width:768px){#toctitle{font-size:1.375em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
 body.toc2{padding-left:15em;padding-right:0}
-#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
-#toc.toc2 #toctitle{margin-top:0;font-size:1.2em}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
 #toc.toc2>ul{font-size:.9em;margin-bottom:0}
 #toc.toc2 ul ul{margin-left:0;padding-left:1em}
 #toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
 body.toc2.toc-right{padding-left:0;padding-right:15em}
-body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}@media only screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
 #toc.toc2{width:20em}
 #toc.toc2 #toctitle{font-size:1.375em}
 #toc.toc2>ul{font-size:.95em}
 #toc.toc2 ul ul{padding-left:1.25em}
-body.toc2.toc-right{padding-left:0;padding-right:20em}}#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
 #content #toc>:first-child{margin-top:0}
 #content #toc>:last-child{margin-bottom:0}
 #footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
 #footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
 .sect1{padding-bottom:.625em}
-@media only screen and (min-width:768px){.sect1{padding-bottom:1.25em}}.sect1+.sect1{border-top:1px solid #efefed}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
 #content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
-#content h1>a.anchor:before,h2>a.anchor:before,h3>a.anchor:before,#toctitle>a.anchor:before,.sidebarblock>.content>.title>a.anchor:before,h4>a.anchor:before,h5>a.anchor:before,h6>a.anchor:before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
 #content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
 #content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
 #content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
 .audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
 .admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
-table.tableblock>caption.title{white-space:nowrap;overflow:visible;max-width:0}
-.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{color:rgba(0,0,0,.85)}
-table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inherit}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
 .admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
 .admonitionblock>table td.icon{text-align:center;width:80px}
 .admonitionblock>table td.icon img{max-width:none}
 .admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
-.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
 .exampleblock>.content>:first-child{margin-top:0}
@@ -205,57 +215,62 @@ table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inh
 .exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
 .sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
-.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
-.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
-@media only screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}@media only screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock pre.nowrap,.literalblock pre.nowrap pre,.listingblock pre.nowrap,.listingblock pre.nowrap pre{white-space:pre;word-wrap:normal}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
 .listingblock pre.highlightjs{padding:0}
 .listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
 .listingblock pre.prettyprint{border-width:0}
 .listingblock>.content{position:relative}
-.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
-.listingblock:hover code[data-lang]:before{display:block}
-.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
-.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
 table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
-table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
 table.pyhltable td.code{padding-left:.75em;padding-right:0}
-pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #dddddf}
 pre.pygments .lineno{display:inline-block;margin-right:.25em}
 table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
 .quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
-.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
 .quoteblock blockquote{margin:0;padding:0;border:0}
-.quoteblock blockquote:before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
 .quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
-.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
-.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
-.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
-.quoteblock .quoteblock blockquote:before{display:none}
-.verseblock{margin:0 1em 1.25em 1em}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
 .verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
 .verseblock pre strong{font-weight:400}
 .verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
 .quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
 .quoteblock .attribution br,.verseblock .attribution br{display:none}
-.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.05em;color:rgba(0,0,0,.6)}
-.quoteblock.abstract{margin:0 0 1.25em 0;display:block}
-.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{text-align:left;word-spacing:0}
-.quoteblock.abstract blockquote:before,.quoteblock.abstract blockquote p:first-of-type:before{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
 table.tableblock{max-width:100%;border-collapse:separate}
-table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
-table.spread{width:100%}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:-1.25em}
 table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
-table.grid-all th.tableblock,table.grid-all td.tableblock{border-width:0 1px 1px 0}
-table.grid-all tfoot>tr>th.tableblock,table.grid-all tfoot>tr>td.tableblock{border-width:1px 1px 0 0}
-table.grid-cols th.tableblock,table.grid-cols td.tableblock{border-width:0 1px 0 0}
-table.grid-all *>tr>.tableblock:last-child,table.grid-cols *>tr>.tableblock:last-child{border-right-width:0}
-table.grid-rows th.tableblock,table.grid-rows td.tableblock{border-width:0 0 1px 0}
-table.grid-all tbody>tr:last-child>th.tableblock,table.grid-all tbody>tr:last-child>td.tableblock,table.grid-all thead:last-child>tr>th.tableblock,table.grid-rows tbody>tr:last-child>th.tableblock,table.grid-rows tbody>tr:last-child>td.tableblock,table.grid-rows thead:last-child>tr>th.tableblock{border-bottom-width:0}
-table.grid-rows tfoot>tr>th.tableblock,table.grid-rows tfoot>tr>td.tableblock{border-width:1px 0 0 0}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
 table.frame-all{border-width:1px}
 table.frame-sides{border-width:0 1px}
-table.frame-topbot{border-width:1px 0}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
 th.halign-center,td.halign-center{text-align:center}
@@ -273,13 +288,14 @@ ul li ol{margin-left:1.5em}
 dl dd{margin-left:1.125em}
 dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
 ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
-ul.unstyled,ol.unnumbered,ul.checklist,ul.none{list-style-type:none}
-ul.unstyled,ol.unnumbered,ul.checklist{margin-left:.625em}
-ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1em;font-size:.85em}
-ul.checklist li>p:first-child>input[type="checkbox"]:first-child{width:1em;position:relative;top:1px}
-ul.inline{margin:0 auto .625em auto;margin-left:-1.375em;margin-right:0;padding:0;list-style:none;overflow:hidden}
-ul.inline>li{list-style:none;float:left;margin-left:1.375em;display:block}
-ul.inline>li>*{display:block}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
 .unstyled dl dt{font-weight:400;font-style:normal}
 ol.arabic{list-style-type:decimal}
 ol.decimal{list-style-type:decimal-leading-zero}
@@ -290,28 +306,30 @@ ol.upperroman{list-style-type:upper-roman}
 ol.lowergreek{list-style-type:lower-greek}
 .hdlist>table,.colist>table{border:0;background:none}
 .hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
-td.hdlist1{padding-right:.75em;font-weight:bold}
-td.hdlist1,td.hdlist2{vertical-align:top}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
 .literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
-.colist>table tr>td:first-of-type{padding:0 .75em;line-height:1}
-.colist>table tr>td:last-of-type{padding:.25em 0}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
 .thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
-.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
-.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
 .imageblock>.title{margin-bottom:0}
 .imageblock.thumb,.imageblock.th{border-width:6px}
 .imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
 .image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
 .image.left{margin-right:.625em}
 .image.right{margin-left:.625em}
-a.image{text-decoration:none}
-span.footnote,span.footnoteref{vertical-align:super;font-size:.875em}
-span.footnote a,span.footnoteref a{text-decoration:none}
-span.footnote a:active,span.footnoteref a:active{text-decoration:underline}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
 #footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
-#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em 0;border-width:1px 0 0 0}
-#footnotes .footnote{padding:0 .375em;line-height:1.3;font-size:.875em;margin-left:1.2em;text-indent:-1.2em;margin-bottom:.2em}
-#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
 #footnotes .footnote:last-of-type{margin-bottom:0}
 #content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
 .gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
@@ -355,59 +373,62 @@ div.unbreakable{page-break-inside:avoid}
 .yellow{color:#bfbf00}
 .yellow-background{background-color:#fafa00}
 span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
 .admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
-.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
-.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
-.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
-.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
-.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
 .conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
 .conum[data-value] *{color:#fff!important}
 .conum[data-value]+b{display:none}
-.conum[data-value]:after{content:attr(data-value)}
+.conum[data-value]::after{content:attr(data-value)}
 pre .conum[data-value]{position:relative;top:-.125em}
 b.conum *{color:inherit!important}
 .conum:not([data-value]):empty{display:none}
-h1,h2{letter-spacing:-.01em}
-dt,th.tableblock,td.content{text-rendering:optimizeLegibility}
-p,td.content{letter-spacing:-.01em}
-p strong,td.content strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content{font-size:1.0625rem}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
 .print-only{display:none!important}
-@media print{@page{margin:1.25cm .75cm}
-*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
 a{color:inherit!important;text-decoration:underline!important}
 a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
-a[href^="http:"]:not(.bare):after,a[href^="https:"]:not(.bare):after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
-abbr[title]:after{content:" (" attr(title) ")"}
-pre,blockquote,tr,img{page-break-inside:avoid}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
 thead{display:table-header-group}
-img{max-width:100%!important}
+svg{max-width:100%}
 p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
 h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
 #toc,.sidebarblock,.exampleblock>.content{background:none!important}
-#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
-.sect1{padding-bottom:0!important}
-.sect1+.sect1{border:0!important}
-#header>h1:first-child{margin-top:1.25rem}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
 body.book #header{text-align:center}
-body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em 0}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
 body.book #header .details{border:0!important;display:block;padding:0!important}
 body.book #header .details span:first-child{margin-left:0!important}
 body.book #header .details br{display:block}
-body.book #header .details br+span:before{content:none!important}
+body.book #header .details br+span::before{content:none!important}
 body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
 body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
-.listingblock code[data-lang]:before{display:block}
-#footer{background:none!important;padding:0 .9375em}
-#footer-text{color:rgba(0,0,0,.6)!important;font-size:.9em}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
 .hide-on-print{display:none!important}
 .print-only{display:block!important}
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
 <body class="book toc2 toc-left">
@@ -495,9 +516,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_まとめ">12. まとめ</a></li>
 <li><a href="#_今後の調査課題">13. 今後の調査課題</a></li>
-<li><a href="#_appendix">Appendix A: Appendix</a>
+<li><a href="#_android_版_cordova_の既知の脆弱性">Appendix A: Android 版 Cordova の既知の脆弱性</a>
 <ul class="sectlevel2">
-<li><a href="#_android_版_cordova_の既知の脆弱性">A.1. Android 版 Cordova の既知の脆弱性</a></li>
+<li><a href="#_ホワイトリスト保護メカニズムを回避される脆弱性_cve_2012_6637">A.1. ホワイトリスト保護メカニズムを回避される脆弱性 (CVE-2012-6637)</a></li>
+<li><a href="#_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1881">A.2. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1881)</a></li>
+<li><a href="#_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1882">A.3. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1882)</a></li>
+<li><a href="#_デバイスリソース制限を回避される脆弱性_cve_2014_1883">A.4. デバイスリソース制限を回避される脆弱性 (CVE-2014-1883)</a></li>
+<li><a href="#_スタートページを変更される脆弱性_cve_2014_3500">A.5. スタートページを変更される脆弱性 (CVE-2014-3500)</a></li>
+<li><a href="#_http_のホワイトリストを回避される脆弱性_cve_2014_3501">A.6. HTTP のホワイトリストを回避される脆弱性 (CVE-2014-3501)</a></li>
+<li><a href="#_任意のアプリケーションを起動される脆弱性_cve_2014_3502">A.7. 任意のアプリケーションを起動される脆弱性 (CVE-2014-3502)</a></li>
+<li><a href="#_外部から_preferences_を悪用可能な脆弱性_cve_2015_1835">A.8. 外部から preferences を悪用可能な脆弱性 (CVE-2015-1835)</a></li>
 </ul>
 </li>
 </ul>
@@ -508,13 +536,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_はじめに">1. はじめに</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>近年、モバイルアプリケーション（以下、アプリ）の市場では、プラットフォーム固有のプログラム言語（以下、ネイティブ言語）で全体を書く代わりに中核部を HTML5 や JavaScript で作った、ハイブリッドアプリケーション（以下、ハイブリッドアプリ）と呼ばれるアプリが増えている。AppBrain による 2015年6月24日時点の調査によると、Google Play で公開されているアプリのうち、5.63% がハイブリッドアプリフレームワーク（以下、フレームワーク）の1つである Cordova を使って開発されている。<span class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</span></p>
+<p>近年、モバイルアプリケーション（以下、アプリ）の市場では、プラットフォーム固有のプログラム言語（以下、ネイティブ言語）で全体を書く代わりに中核部を HTML5 や JavaScript で作った、ハイブリッドアプリケーション（以下、ハイブリッドアプリ）と呼ばれるアプリが増えている。AppBrain による 2015年6月24日時点の調査によると、Google Play で公開されているアプリのうち、5.63% がハイブリッドアプリフレームワーク（以下、フレームワーク）の1つである Cordova を使って開発されている。<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>ハイブリッドアプリの開発には標準化された Web の技術を用いるため、アプリのクロスプラットフォーム化を容易にできる一方、開発の効率化のために採用したフレームワークがもたらす潜在的な脆弱性や、Web の開発言語に起因する脆弱性がアプリに混入するリスクが生じる。</p>
 </div>
 <div class="paragraph">
-<p>したがって、アプリユーザが抱えるセキュリティ上のリスクをできるだけ低減するために、アプリ開発者には、セキュアコーディング等により自身が書くコードを堅牢にするのみならず、フレームワーク等がもたらす脆弱性を把握し、取りうる対策を最大限に実施することが望まれる。フレームワークに関する脆弱性の研究はすでにいくつか行われているが <span class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnote_2" title="View footnote.">2</a>]</span> <span class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnote_3" title="View footnote.">3</a>]</span> <span class="footnote">[<a id="_footnoteref_4" class="footnote" href="#_footnote_4" title="View footnote.">4</a>]</span>、これらの研究はアプリ開発者が取りうる対策を網羅的にまとめたものではなく、アプリに作り込まれうる脆弱性の全体像を俯瞰するには適さない。</p>
+<p>したがって、アプリユーザが抱えるセキュリティ上のリスクをできるだけ低減するために、アプリ開発者には、セキュアコーディング等により自身が書くコードを堅牢にするのみならず、フレームワーク等がもたらす脆弱性を把握し、取りうる対策を最大限に実施することが望まれる。フレームワークに関する脆弱性の研究はすでにいくつか行われているが <sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup> <sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnotedef_3" title="View footnote.">3</a>]</sup> <sup class="footnote">[<a id="_footnoteref_4" class="footnote" href="#_footnotedef_4" title="View footnote.">4</a>]</sup>、これらの研究はアプリ開発者が取りうる対策を網羅的にまとめたものではなく、アプリに作り込まれうる脆弱性の全体像を俯瞰するには適さない。</p>
 </div>
 <div class="paragraph">
 <p>本報告書では、フレームワークの1つである Apache Cordova (以下、Cordova) を用いて開発された、Android と iOS のハイブリッドアプリに様々な脆弱性が作り込まれる様子を、アプリの構成要素（OS、WebView、Cordova、プラグイン、アプリ固有のコード、ネットワーク通信、サーバ）ごとに分析する。分析にあたり、各コンポーネントにこれまで発見された脆弱性、先行研究で指摘された脆弱性、本調査により発見した新規の脆弱性を可能な限り網羅し、その影響と対策方法を提示した。また、これらの脆弱性の影響範囲を把握するため、アプリマーケットで公開されているハイブリッドアプリの調査を行った。</p>
@@ -539,7 +567,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="_概要">2.2.1. 概要</h4>
 <div class="paragraph">
-<p>フレームワークの中で現在最も人気があるのは本稿でも取り上げる Apache Cordova （以下 Cordova）である。Cordova は現在、Apache Foundationによって Apache License 2.0の下、オープンソースとして公開されている。<span class="footnote">[<a id="_footnoteref_5" class="footnote" href="#_footnote_5" title="View footnote.">5</a>]</span> 商用利用が可能であり、改変や再頒布も自由に行うことができるため、Cordova をベースに開発された多くの派生版フレームワークが存在する。</p>
+<p>フレームワークの中で現在最も人気があるのは本稿でも取り上げる Apache Cordova （以下 Cordova）である。Cordova は現在、Apache Foundationによって Apache License 2.0の下、オープンソースとして公開されている。<sup class="footnote">[<a id="_footnoteref_5" class="footnote" href="#_footnotedef_5" title="View footnote.">5</a>]</sup> 商用利用が可能であり、改変や再頒布も自由に行うことができるため、Cordova をベースに開発された多くの派生版フレームワークが存在する。</p>
 </div>
 <div class="paragraph">
 <p>Cordova を用いたアプリ開発では、通常、1つ以上の Cordovaプラグインを利用する。Cordovaプラグインとは、端末固有の機能を API として Web アプリに提供するものである。カメラ、バーコードリーダー、センサー制御、ローカルファイルの操作といった様々な機能を提供するプラグインが存在し、開発者は、必要な機能を備える Cordova プラグインを導入することで、Webの言語だけでアプリを開発することができる。また、必要な機能を持つプラグインが存在しなければ、開発者自身がプラグインを作成することも可能である。</p>
@@ -550,14 +578,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>2008年、カナダの Nitobi Software Inc.が、PhoneGap と呼ばれるフレームワークを開発<span class="footnote">[<a id="_footnoteref_6" class="footnote" href="#_footnote_6" title="View footnote.">6</a>]</span></p>
+<p>2008年、カナダの Nitobi Software Inc.が、PhoneGap と呼ばれるフレームワークを開発<sup class="footnote">[<a id="_footnoteref_6" class="footnote" href="#_footnotedef_6" title="View footnote.">6</a>]</sup></p>
 <div class="ulist">
 <ul>
 <li>
 <p>当初はiOSのみをサポート。Web開発者が手軽にiPhoneアプリを開発できるフレームワークとして誕生</p>
 </li>
 <li>
-<p>オープンソース化 (MIT License) <span class="footnote">[<a id="_footnoteref_7" class="footnote" href="#_footnote_7" title="View footnote.">7</a>]</span></p>
+<p>オープンソース化 (MIT License) <sup class="footnote">[<a id="_footnoteref_7" class="footnote" href="#_footnotedef_7" title="View footnote.">7</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -567,29 +595,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>Android、Blackberry、Symbian、Windows、webOS、bada などをサポート<span class="footnote">[<a id="_footnoteref_8" class="footnote" href="#_footnote_8" title="View footnote.">8</a>]</span></p>
+<p>Android、Blackberry、Symbian、Windows、webOS、bada などをサポート<sup class="footnote">[<a id="_footnoteref_8" class="footnote" href="#_footnotedef_8" title="View footnote.">8</a>]</sup></p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>2011年10月、Nitobi社 が Adobe Systems Inc. に買収される <span class="footnote">[<a id="_footnoteref_9" class="footnote" href="#_footnote_9" title="View footnote.">9</a>]</span></p>
+<p>2011年10月、Nitobi社 が Adobe Systems Inc. に買収される <sup class="footnote">[<a id="_footnoteref_9" class="footnote" href="#_footnotedef_9" title="View footnote.">9</a>]</sup></p>
 <div class="ulist">
 <ul>
 <li>
-<p>Adobe は PhoneGap のソースコードを Apache Software Foundation に寄贈 <span class="footnote">[<a id="_footnoteref_10" class="footnote" href="#_footnote_10" title="View footnote.">10</a>]</span></p>
+<p>Adobe は PhoneGap のソースコードを Apache Software Foundation に寄贈 <sup class="footnote">[<a id="_footnoteref_10" class="footnote" href="#_footnotedef_10" title="View footnote.">10</a>]</sup></p>
 </li>
 <li>
 <p>寄贈当初は「Apache Callback」という名称で Apache License 2.0のもと、引き続きオープンソースとして公開される</p>
 </li>
 <li>
-<p>PhoneGap は Adobe の商標となり、Adobe がリリースする Callback の製品名として使用されるようになる <span class="footnote">[<a id="_footnoteref_11" class="footnote" href="#_footnote_11" title="View footnote.">11</a>]</span></p>
+<p>PhoneGap は Adobe の商標となり、Adobe がリリースする Callback の製品名として使用されるようになる <sup class="footnote">[<a id="_footnoteref_11" class="footnote" href="#_footnotedef_11" title="View footnote.">11</a>]</sup></p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>2011年、Apache Callback が Apache Cordova に改名される <span class="footnote">[<a id="_footnoteref_12" class="footnote" href="#_footnote_12" title="View footnote.">12</a>]</span></p>
+<p>2011年、Apache Callback が Apache Cordova に改名される <sup class="footnote">[<a id="_footnoteref_12" class="footnote" href="#_footnotedef_12" title="View footnote.">12</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -625,7 +653,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="_cordova_プラグイン">2.2.4. Cordova プラグイン</h4>
 <div class="paragraph">
-<p>主要な Cordova プラグインは、Apache Software Foundation (ASF) が運営する Web サイト <a href="http://plugins.cordova.io/#/">Plugins Registry</a> で公開されており、アプリ開発者は必要なプラグインを検索することができる。2015年6月25日現在、1053個のプラグインが登録されている。プラグインの管理は <a href="https://www.npmjs.com/">npm</a> に移行され、これに伴い2015年10月15日に Plugin Repository が閉鎖されることがアナウンスされている。 <span class="footnote">[<a id="_footnoteref_13" class="footnote" href="#_footnote_13" title="View footnote.">13</a>]</span> プラグインポータルサイトとしては、サードパーティーの <a href="http://plugreg.com/">Plugreg</a> が注目を集めている。2015年6月25日現在、Plugin Registory には 1469 を超える数のプラグインが公開されている。</p>
+<p>主要な Cordova プラグインは、Apache Software Foundation (ASF) が運営する Web サイト <a href="http://plugins.cordova.io/#/">Plugins Registry</a> で公開されており、アプリ開発者は必要なプラグインを検索することができる。2015年6月25日現在、1053個のプラグインが登録されている。プラグインの管理は <a href="https://www.npmjs.com/">npm</a> に移行され、これに伴い2015年10月15日に Plugin Repository が閉鎖されることがアナウンスされている。 <sup class="footnote">[<a id="_footnoteref_13" class="footnote" href="#_footnotedef_13" title="View footnote.">13</a>]</sup> プラグインポータルサイトとしては、サードパーティーの <a href="http://plugreg.com/">Plugreg</a> が注目を集めている。2015年6月25日現在、Plugin Registory には 1469 を超える数のプラグインが公開されている。</p>
 </div>
 <div class="paragraph">
 <p>プラグインによっては、サポートする OS が異なる場合や、提供される機能が OS ごとに異なる場合がある。たとえば <a href="https://github.com/apache/cordova-plugin-file/">File</a> プラグインは、Windows では一部の機能を実装していない。</p>
@@ -648,38 +676,38 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>WebView.addJavascriptInterface を利用する方法 <span class="footnote">[<a id="_footnoteref_14" class="footnote" href="#_footnote_14" title="View footnote.">14</a>]</span> <span class="footnote">[<a id="_footnoteref_15" class="footnote" href="#_footnote_15" title="View footnote.">15</a>]</span></p>
+<p>WebView.addJavascriptInterface を利用する方法 <sup class="footnote">[<a id="_footnoteref_14" class="footnote" href="#_footnotedef_14" title="View footnote.">14</a>]</sup> <sup class="footnote">[<a id="_footnoteref_15" class="footnote" href="#_footnotedef_15" title="View footnote.">15</a>]</sup></p>
 </li>
 <li>
-<p>JS で window.prompt() を呼び出し、それを WebChromeClient.onJsPrompt() でフックする方法 (PROMPT) <span class="footnote">[<a id="_footnoteref_16" class="footnote" href="#_footnote_16" title="View footnote.">16</a>]</span> <span class="footnote">[<a id="_footnoteref_17" class="footnote" href="#_footnote_17" title="View footnote.">17</a>]</span></p>
+<p>JS で window.prompt() を呼び出し、それを WebChromeClient.onJsPrompt() でフックする方法 (PROMPT) <sup class="footnote">[<a id="_footnoteref_16" class="footnote" href="#_footnotedef_16" title="View footnote.">16</a>]</sup> <sup class="footnote">[<a id="_footnoteref_17" class="footnote" href="#_footnotedef_17" title="View footnote.">17</a>]</sup></p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>addJavascriptInterface() のセキュリティ上の懸念から、Android 4.2 未満の端末では PROMPT のみが使われる。<span class="footnote">[<a id="_footnoteref_18" class="footnote" href="#_footnote_18" title="View footnote.">18</a>]</span> Android 4.2 以降の端末では、初回の通信のみ PROMPT を使用し、その後の通信には JS_OBJECT が用いられる。PROMPT では、window.prompt() を呼び出したドキュメントのオリジンがネイティブ側のコードに通知されるので、ホワイトリストを用いた実行制限が可能である。一方で、PROMPT は UI スレッド上で動作することから、JS_OBJECT に比べてパフォーマンス上劣るという欠点がある。</p>
+<p>addJavascriptInterface() のセキュリティ上の懸念から、Android 4.2 未満の端末では PROMPT のみが使われる。<sup class="footnote">[<a id="_footnoteref_18" class="footnote" href="#_footnotedef_18" title="View footnote.">18</a>]</sup> Android 4.2 以降の端末では、初回の通信のみ PROMPT を使用し、その後の通信には JS_OBJECT が用いられる。PROMPT では、window.prompt() を呼び出したドキュメントのオリジンがネイティブ側のコードに通知されるので、ホワイトリストを用いた実行制限が可能である。一方で、PROMPT は UI スレッド上で動作することから、JS_OBJECT に比べてパフォーマンス上劣るという欠点がある。</p>
 </div>
 <div class="paragraph">
 <div class="title">NativeToJsBridge</div>
-<p>ネイティブアプリから Web アプリへの通信に使用されるもので、次の4種類が存在する。<span class="footnote">[<a id="_footnoteref_19" class="footnote" href="#_footnote_19" title="View footnote.">19</a>]</span></p>
+<p>ネイティブアプリから Web アプリへの通信に使用されるもので、次の4種類が存在する。<sup class="footnote">[<a id="_footnoteref_19" class="footnote" href="#_footnotedef_19" title="View footnote.">19</a>]</sup></p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>JsToNative ブリッジを用いて、ネイティブから送信するデータの有無をポーリングで確認する方法 (POLLING) <span class="footnote">[<a id="_footnoteref_20" class="footnote" href="#_footnote_20" title="View footnote.">20</a>]</span> <span class="footnote">[<a id="_footnoteref_21" class="footnote" href="#_footnote_21" title="View footnote.">21</a>]</span></p>
+<p>JsToNative ブリッジを用いて、ネイティブから送信するデータの有無をポーリングで確認する方法 (POLLING) <sup class="footnote">[<a id="_footnoteref_20" class="footnote" href="#_footnotedef_20" title="View footnote.">20</a>]</sup> <sup class="footnote">[<a id="_footnoteref_21" class="footnote" href="#_footnotedef_21" title="View footnote.">21</a>]</sup></p>
 </li>
 <li>
-<p>WebView.loadUrl("javascript:") を用いてネイティブ側から JavaScript を注入する方法 <span class="footnote">[<a id="_footnoteref_22" class="footnote" href="#_footnote_22" title="View footnote.">22</a>]</span></p>
+<p>WebView.loadUrl("javascript:") を用いてネイティブ側から JavaScript を注入する方法 <sup class="footnote">[<a id="_footnoteref_22" class="footnote" href="#_footnotedef_22" title="View footnote.">22</a>]</sup></p>
 </li>
 <li>
-<p>ネットワークの ON/OFF をトグルし、送信するデータの発生を window.ononline() で JavaScript に通知する方法 (ONLINE_EVENT) <span class="footnote">[<a id="_footnoteref_23" class="footnote" href="#_footnote_23" title="View footnote.">23</a>]</span></p>
+<p>ネットワークの ON/OFF をトグルし、送信するデータの発生を window.ononline() で JavaScript に通知する方法 (ONLINE_EVENT) <sup class="footnote">[<a id="_footnoteref_23" class="footnote" href="#_footnotedef_23" title="View footnote.">23</a>]</sup></p>
 </li>
 <li>
-<p>WebView の sendMessage() という Private API をリフレクションで実行し、ネイティブ側からメッセージを送信する方法 (PRIVATE_API)<span class="footnote">[<a id="_footnoteref_24" class="footnote" href="#_footnote_24" title="View footnote.">24</a>]</span></p>
+<p>WebView の sendMessage() という Private API をリフレクションで実行し、ネイティブ側からメッセージを送信する方法 (PRIVATE_API)<sup class="footnote">[<a id="_footnoteref_24" class="footnote" href="#_footnotedef_24" title="View footnote.">24</a>]</sup></p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>NativeToJsBridge では ONLINE_EVENT のみが使用される。<span class="footnote">[<a id="_footnoteref_25" class="footnote" href="#_footnote_25" title="View footnote.">25</a>]</span> ONLINE_EVENTでは、ネイティブから JavaScript に直接データを渡すのではない点に注意が必要である。JavaScript は online イベントの発生を契機に、JsToNativeBridge を用いて自らデータを取得する。<span class="footnote">[<a id="_footnoteref_26" class="footnote" href="#_footnote_26" title="View footnote.">26</a>]</span></p>
+<p>NativeToJsBridge では ONLINE_EVENT のみが使用される。<sup class="footnote">[<a id="_footnoteref_25" class="footnote" href="#_footnotedef_25" title="View footnote.">25</a>]</sup> ONLINE_EVENTでは、ネイティブから JavaScript に直接データを渡すのではない点に注意が必要である。JavaScript は online イベントの発生を契機に、JsToNativeBridge を用いて自らデータを取得する。<sup class="footnote">[<a id="_footnoteref_26" class="footnote" href="#_footnotedef_26" title="View footnote.">26</a>]</sup></p>
 </div>
 </div>
 <div class="sect4">
@@ -692,7 +720,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="paragraph">
 <div class="title">Webアプリからネイティブアプリへの通信に使うブリッジ (Android版Cordovaにおける JsToNativeBridgeに相当 )</div>
-<p>次の2種類のブリッジをサポートしている。<span class="footnote">[<a id="_footnoteref_27" class="footnote" href="#_footnote_27" title="View footnote.">27</a>]</span></p>
+<p>次の2種類のブリッジをサポートしている。<sup class="footnote">[<a id="_footnoteref_27" class="footnote" href="#_footnotedef_27" title="View footnote.">27</a>]</sup></p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -711,7 +739,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>iframe によるブリッジでは、gap:// で始まる URL へのアクセスが、ネイティブの機能呼び出しとして解釈されるのに対し、XMLHttpRequest によるブリッジでは、/!gap_exec というパスに対するアクセスが、ネイティブの機能呼び出しとして解釈される。</p>
 </div>
 <div class="paragraph">
-<p>過去のバージョンの Cordova では、XMLHttpRequest がデフォルトで使用されていたが、現在は iframe がデフォルトになっている。<span class="footnote">[<a id="_footnoteref_28" class="footnote" href="#_footnote_28" title="View footnote.">28</a>]</span> 変更は、過去の iOS のバグに起因するものであるが、iframe は性能面でも XMLHttpRequest と比べて有利であると考えられる。<span class="footnote">[<a id="_footnoteref_29" class="footnote" href="#_footnote_29" title="View footnote.">29</a>]</span></p>
+<p>過去のバージョンの Cordova では、XMLHttpRequest がデフォルトで使用されていたが、現在は iframe がデフォルトになっている。<sup class="footnote">[<a id="_footnoteref_28" class="footnote" href="#_footnotedef_28" title="View footnote.">28</a>]</sup> 変更は、過去の iOS のバグに起因するものであるが、iframe は性能面でも XMLHttpRequest と比べて有利であると考えられる。<sup class="footnote">[<a id="_footnoteref_29" class="footnote" href="#_footnotedef_29" title="View footnote.">29</a>]</sup></p>
 </div>
 <div class="paragraph">
 <div class="title">ネイティブアプリからWebアプリへの通信に使うブリッジ (Android 版 Cordova における NativeToJsBridge に相当)</div>
@@ -736,7 +764,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 そのようなリスクを低減する機能として、Cordova は「ホワイトリスト」と呼ばれる保護機能を備えており、アプリ開発者が信頼するオリジン以外からのリソース取得を制限することができる。</p>
 </div>
 <div class="paragraph">
-<p>Android 版 Cordova 4.x では、ホワイトリストが Cordova 本体から分離し、プラグインとして別配布される仕様に変更されている。<span class="footnote">[<a id="_footnoteref_30" class="footnote" href="#_footnote_30" title="View footnote.">30</a>]</span> <span class="footnote">[<a id="_footnoteref_31" class="footnote" href="#_footnote_31" title="View footnote.">31</a>]</span> アプリにホワイトリストのプラグインを組み込まない場合、ブリッジへのアクセスは一切保護されない。また、Cordova CLI で Android アプリのプロジェクトを構築した場合 (cordova platform add android を実行した場合)、Whitelist プラグインが自動的に組み込まれる。</p>
+<p>Android 版 Cordova 4.x では、ホワイトリストが Cordova 本体から分離し、プラグインとして別配布される仕様に変更されている。<sup class="footnote">[<a id="_footnoteref_30" class="footnote" href="#_footnotedef_30" title="View footnote.">30</a>]</sup> <sup class="footnote">[<a id="_footnoteref_31" class="footnote" href="#_footnotedef_31" title="View footnote.">31</a>]</sup> アプリにホワイトリストのプラグインを組み込まない場合、ブリッジへのアクセスは一切保護されない。また、Cordova CLI で Android アプリのプロジェクトを構築した場合 (cordova platform add android を実行した場合)、Whitelist プラグインが自動的に組み込まれる。</p>
 </div>
 <div class="paragraph">
 <p>2015年6月25日時点では、Cordova 4.x の新仕様に基づく Whitelist プラグイン「cordova-plugin-whitelist」と 3.x との互換性維持を目的とした「cordova-plugin-legacy-whitelist」の2種類の Whitelist プラグインが提供されているが、後者は安全性に劣るため、利用は推奨されない。</p>
@@ -745,7 +773,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Android 版 Cordova 3.x とiOS 版のホワイトリストは、config.xmlの「&lt;access origin="[origin]" /&gt;」句によって宣言する。リストの初期値は「*」、つまり全てのドメインを許可する状態であるため、適切に設定する必要がある。Android 版 Cordova 4.x の cordova-plugin-legacy-whitelist も同様に動作する。</p>
 </div>
 <div class="paragraph">
-<p>Android 版 Cordova 4.x ではホワイトリストの仕様が変更され、従来のホワイトリストが次の3種類に分割された。<span class="footnote">[<a id="_footnoteref_32" class="footnote" href="#_footnote_32" title="View footnote.">32</a>]</span></p>
+<p>Android 版 Cordova 4.x ではホワイトリストの仕様が変更され、従来のホワイトリストが次の3種類に分割された。<sup class="footnote">[<a id="_footnoteref_32" class="footnote" href="#_footnotedef_32" title="View footnote.">32</a>]</sup></p>
 </div>
 <div class="ulist">
 <div class="title">Navigation Whitelist (allow-navigation)</div>
@@ -778,10 +806,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 <div class="paragraph">
-<p>Android 4.x では、Whitelist プラグインを組み込んだ場合、HTML 文書に Content Security Policy (CSP) を指定することが要求される。Android OS 側の制限により、新仕様である Network Request Whitelist を使っても十分なアクセス制御を行うことができないため、CSP の利用が推奨されている。Whitelist プラグインを組み込むと、HTML 文書の中に meta タグで CSP が指定されていない場合、10秒おきにコンソールへ警告ログが出力され、CSP を適用するよう促される。<span class="footnote">[<a id="_footnoteref_33" class="footnote" href="#_footnote_33" title="View footnote.">33</a>]</span></p>
+<p>Android 4.x では、Whitelist プラグインを組み込んだ場合、HTML 文書に Content Security Policy (CSP) を指定することが要求される。Android OS 側の制限により、新仕様である Network Request Whitelist を使っても十分なアクセス制御を行うことができないため、CSP の利用が推奨されている。Whitelist プラグインを組み込むと、HTML 文書の中に meta タグで CSP が指定されていない場合、10秒おきにコンソールへ警告ログが出力され、CSP を適用するよう促される。<sup class="footnote">[<a id="_footnoteref_33" class="footnote" href="#_footnotedef_33" title="View footnote.">33</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>ホワイトリストは過去に複数の実装上の脆弱性が指摘されており、その一部は現在も解決されていない。たとえば、Android API 10 以下ではホワイトリストが機能しない。<span class="footnote">[<a id="_footnoteref_34" class="footnote" href="#_footnote_34" title="View footnote.">34</a>]</span>また、ホワイトリストには、運用面での課題も指摘されている。ホワイトリストの制限事項および課題については、以降の章で詳細に検討する。</p>
+<p>ホワイトリストは過去に複数の実装上の脆弱性が指摘されており、その一部は現在も解決されていない。たとえば、Android API 10 以下ではホワイトリストが機能しない。<sup class="footnote">[<a id="_footnoteref_34" class="footnote" href="#_footnotedef_34" title="View footnote.">34</a>]</sup>また、ホワイトリストには、運用面での課題も指摘されている。ホワイトリストの制限事項および課題については、以降の章で詳細に検討する。</p>
 </div>
 </div>
 </div>
@@ -858,10 +886,10 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>Android は libpng、libxml2、libexif、zlib などのオープンソースライブラリを多数利用しており、アプリが利用する OS の機能によっては、これらオープンソースライブラリの脆弱性の影響を受ける。</p>
 </div>
 <div class="paragraph">
-<p>たとえば、2015年2月現在の最新の Android には libpng 1.6.10 が使用されているが、1.6.16 未満のバージョンの libpng にはヒープオーバーフローの脆弱性が指摘されている。 <span class="footnote">[<a id="_footnoteref_35" class="footnote" href="#_footnote_35" title="View footnote.">35</a>]</span></p>
+<p>たとえば、2015年2月現在の最新の Android には libpng 1.6.10 が使用されているが、1.6.16 未満のバージョンの libpng にはヒープオーバーフローの脆弱性が指摘されている。 <sup class="footnote">[<a id="_footnoteref_35" class="footnote" href="#_footnotedef_35" title="View footnote.">35</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>他にも、ネットワーク通信や暗号処理を提供する API のバックエンドには OpenSSL が利用されているため、これらの API を利用するアプリは OpenSSL の脆弱性の影響を受ける可能性がある。<span class="footnote">[<a id="_footnoteref_36" class="footnote" href="#_footnote_36" title="View footnote.">36</a>]</span></p>
+<p>他にも、ネットワーク通信や暗号処理を提供する API のバックエンドには OpenSSL が利用されているため、これらの API を利用するアプリは OpenSSL の脆弱性の影響を受ける可能性がある。<sup class="footnote">[<a id="_footnoteref_36" class="footnote" href="#_footnotedef_36" title="View footnote.">36</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>iOSでは、2014年、NSXMLParser において、XML に含まれる外部エンティティの参照を無効化できないという脆弱性 (<a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-4374">CVE-2014-4374</a>) が見つかっている。iOS8 では NSXMLParser で外部エンティティ参照の可否を設定するプロパティは機能しておらず脆弱性が再現する状態であったが、iOS8.3 において <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-1092">CVE-2015-1092</a> として <a href="https://support.apple.com/en-us/HT204661">再度修正</a>されている。</p>
@@ -913,19 +941,19 @@ We have now determined that applications which use the Java Cryptography Archite
 <div class="sect3">
 <h4 id="_webページから任意のjavaコードを実行できる脆弱性_cve_2013_4710_cve_2014_1939">4.2.1. Webページから任意のJavaコードを実行できる脆弱性 (CVE-2013-4710, CVE-2014-1939)</h4>
 <div class="paragraph">
-<p>Android 4.1 以下の WebView には、ユーザを悪意サイトにアクセスしただけで攻撃者の Java コードを実行させられる脆弱性が存在する。<span class="footnote">[<a id="_footnoteref_37" class="footnote" href="#_footnote_37" title="View footnote.">37</a>]</span> <span class="footnote">[<a id="_footnoteref_38" class="footnote" href="#_footnote_38" title="View footnote.">38</a>]</span> 脆弱性が悪用された場合、ユーザが Web ページを開いただけで、アプリが管理するユーザの個人情報が盗まれる、あるいは他のアプリが起動されるなどの恐れがある。また、他の脆弱性との組み合わせで、Web ページを開いただけで端末の管理者権限が取られ、マルウェアをインストールされたりする恐れもある。</p>
+<p>Android 4.1 以下の WebView には、ユーザを悪意サイトにアクセスしただけで攻撃者の Java コードを実行させられる脆弱性が存在する。<sup class="footnote">[<a id="_footnoteref_37" class="footnote" href="#_footnotedef_37" title="View footnote.">37</a>]</sup> <sup class="footnote">[<a id="_footnoteref_38" class="footnote" href="#_footnotedef_38" title="View footnote.">38</a>]</sup> 脆弱性が悪用された場合、ユーザが Web ページを開いただけで、アプリが管理するユーザの個人情報が盗まれる、あるいは他のアプリが起動されるなどの恐れがある。また、他の脆弱性との組み合わせで、Web ページを開いただけで端末の管理者権限が取られ、マルウェアをインストールされたりする恐れもある。</p>
 </div>
 <div class="paragraph">
 <p>Android フレームワークが WebView を初期化する際には、2つの Java オブジェクト SearchboxImpl と accessibility を WebView#addJavascriptInterface によってインスタンシエートしており、それぞれ searchBoxJavaBridge_ と accessibility という名称で JavaScript から参照可能であった。また、JavaScript から Java のリフレクションを行うことで、これらのオブジェクトを介して任意の Java コードを実行することが可能であった。</p>
 </div>
 <div class="paragraph">
-<p>Android 4.2 では、SearchboxImpl オブジェクトは WebView から削除され、accessibility オブジェクトについては、リフレクションが使えないように制限されている。<span class="footnote">[<a id="_footnoteref_39" class="footnote" href="#_footnote_39" title="View footnote.">39</a>]</span> <span class="footnote">[<a id="_footnoteref_40" class="footnote" href="#_footnote_40" title="View footnote.">40</a>]</span></p>
+<p>Android 4.2 では、SearchboxImpl オブジェクトは WebView から削除され、accessibility オブジェクトについては、リフレクションが使えないように制限されている。<sup class="footnote">[<a id="_footnoteref_39" class="footnote" href="#_footnotedef_39" title="View footnote.">39</a>]</sup> <sup class="footnote">[<a id="_footnoteref_40" class="footnote" href="#_footnotedef_40" title="View footnote.">40</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>これらの脆弱性は Android 4.1 以前の addJavascriptInterface の仕様に起因するものである。したがって、アプリが API 16 以前をサポートする場合、アプリ内のコードで addJavascriptInterface を利用した際にも同様の脆弱性が生じる可能性がある。Android 4.2 では、Java のソースコード上で @javascriptinterface というアノテーションが指定されたメソッドしか JavaScript から操作できないように API が仕様変更されている。<span class="footnote">[<a id="_footnoteref_41" class="footnote" href="#_footnote_41" title="View footnote.">41</a>]</span></p>
+<p>これらの脆弱性は Android 4.1 以前の addJavascriptInterface の仕様に起因するものである。したがって、アプリが API 16 以前をサポートする場合、アプリ内のコードで addJavascriptInterface を利用した際にも同様の脆弱性が生じる可能性がある。Android 4.2 では、Java のソースコード上で @javascriptinterface というアノテーションが指定されたメソッドしか JavaScript から操作できないように API が仕様変更されている。<sup class="footnote">[<a id="_footnoteref_41" class="footnote" href="#_footnotedef_41" title="View footnote.">41</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>Cordova は addJavascriptInterface を用いたブリッジをサポートしているが、Android 4.2 未満の端末ではこれを使用していない。 <span class="footnote">[<a id="_footnoteref_42" class="footnote" href="#_footnote_42" title="View footnote.">42</a>]</span></p>
+<p>Cordova は addJavascriptInterface を用いたブリッジをサポートしているが、Android 4.2 未満の端末ではこれを使用していない。 <sup class="footnote">[<a id="_footnoteref_42" class="footnote" href="#_footnotedef_42" title="View footnote.">42</a>]</sup></p>
 </div>
 </div>
 <div class="sect3">
@@ -1001,7 +1029,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>Crosswalk は Intel が中心となって開発が進められているオープンソースの WebView 実装である。最新の Chromium のソースコードを用いて頻繁に更新作業が続けられており、Crosswalk を使用することで端末の WebView が抱える既知の脆弱性の影響を受けることなく、アプリを開発することが可能になる。</p>
 </div>
 <div class="paragraph">
-<p>2015年4月には Crosswalk が公式にサポートされることが発表されている。<span class="footnote">[<a id="_footnoteref_43" class="footnote" href="#_footnote_43" title="View footnote.">43</a>]</span> 4.x 系の Cordova では Crosswalk を Cordova プラグインとしてアプリに組み込むことができるようになり、アプリに組み込んだ場合、ビルド時に最新の Crosswalk ライブラリが自動的に組み込まれる。2015年6月25日時点、最新の安定版である Crosswalk 13.42.319.12 が組み込まれる。</p>
+<p>2015年4月には Crosswalk が公式にサポートされることが発表されている。<sup class="footnote">[<a id="_footnoteref_43" class="footnote" href="#_footnotedef_43" title="View footnote.">43</a>]</sup> 4.x 系の Cordova では Crosswalk を Cordova プラグインとしてアプリに組み込むことができるようになり、アプリに組み込んだ場合、ビルド時に最新の Crosswalk ライブラリが自動的に組み込まれる。2015年6月25日時点、最新の安定版である Crosswalk 13.42.319.12 が組み込まれる。</p>
 </div>
 <div class="paragraph">
 <p>Crosswalk には次に挙げる課題が存在する。</p>
@@ -1018,7 +1046,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>Android 4.0 以前において、READ_LOGS パーミッションを持つアプリであれば他のアプリのログを閲覧できるため、情報流出の危険性が存在した。これはたとえば、ログに出力される URL に、セッションID や OAuth 2.0 のアクセストークンなどの情報が含まれる場合、セキュリティ上の問題となる。Android 4.0 の WebView では、WebChromeClient#onConsoleMessage() をオーバーライドし true を返すよう変更することで、WebView のログを無効化できた。Crosswalk は多くの箇所で android.util.Log の Log クラスのメソッドを直接呼び出しており、onConsoleMessage をオーバーライドするだけではすべてのログを無効化できない。</p>
 </li>
 <li>
-<p>アプリのサイズが大きくなる<span class="footnote">[<a id="_footnoteref_44" class="footnote" href="#_footnote_44" title="View footnote.">44</a>]</span></p>
+<p>アプリのサイズが大きくなる<sup class="footnote">[<a id="_footnoteref_44" class="footnote" href="#_footnotedef_44" title="View footnote.">44</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -1035,7 +1063,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <div class="sect3">
 <h4 id="_android_2">5.1.1. Android</h4>
 <div class="paragraph">
-<p>2015年5月時点、Android 版 Cordovaには、7件の脆弱性が報告されている。</p>
+<p>2015年11月時点、Android 版 Cordovaには、9件の脆弱性が報告されている。</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 70%;">
 <caption class="title">Table 1. Cordovaの脆弱性</caption>
@@ -1076,29 +1104,37 @@ We have now determined that applications which use the Java Cryptography Archite
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-1835">CVE-2015-1835</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">外部から preferences を悪用される脆弱性</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5256">CVE-2015-5256</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP のホワイトリストを回避される脆弱性</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-8320">CVE-2015-8320</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">暗号学的に安全でない疑似乱数生成器によりブリッジシークレットが生成される脆弱性</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
 <p>個々の脆弱性の詳細については Appendix を参照して欲しい。</p>
 </div>
 <div class="paragraph">
-<p>2014年10月、Google は、Google Play で Cordova を使用したハイブリッドアプリを公開している開発者に対し、Cordova のバージョンを 3.5.1 以上に更新することを促す注意喚起のメッセージを送付している。<span class="footnote">[<a id="_footnoteref_45" class="footnote" href="#_footnote_45" title="View footnote.">45</a>]</span> アップデートを放置した場合、対象となるアプリは "dangerous products" と判断され、Google Play から削除される可能性があるとされているが、本調査では、実際に削除されたアプリの有無を確認していない。</p>
+<p>2014年10月、Google は、Google Play で Cordova を使用したハイブリッドアプリを公開している開発者に対し、Cordova のバージョンを 3.5.1 以上に更新することを促す注意喚起のメッセージを送付している。<sup class="footnote">[<a id="_footnoteref_45" class="footnote" href="#_footnotedef_45" title="View footnote.">45</a>]</sup> アップデートを放置した場合、対象となるアプリは "dangerous products" と判断され、Google Play から削除される可能性があるとされているが、本調査では、実際に削除されたアプリの有無を確認していない。</p>
 </div>
 <div class="paragraph">
-<p>CVE-2014-3501 は、Android の仕様に起因する脆弱性であり、2015年2月現在、修正されていない。脆弱性の発見者は、アプリ開発者が CSP を使って対策することを論文の中で提案している。 <span class="footnote">[<a id="_footnoteref_46" class="footnote" href="#_footnote_46" title="View footnote.">46</a>]</span> <span class="footnote">[<a id="_footnoteref_47" class="footnote" href="#_footnote_47" title="View footnote.">47</a>]</span></p>
+<p>CVE-2014-3501 は、Android の仕様に起因する脆弱性であり、2015年2月現在、修正されていない。脆弱性の発見者は、アプリ開発者が CSP を使って対策することを論文の中で提案している。 <sup class="footnote">[<a id="_footnoteref_46" class="footnote" href="#_footnotedef_46" title="View footnote.">46</a>]</sup> <sup class="footnote">[<a id="_footnoteref_47" class="footnote" href="#_footnotedef_47" title="View footnote.">47</a>]</sup></p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_ios_2">5.1.2. iOS</h4>
 <div class="paragraph">
-<p>iOS 版 Cordova に関する脆弱性はこれまでに公開されていない。厳密に言えば、2014年にテキサス大学の研究者らによって、ネイティブ側の実装が iframe からのブリッジに対する要求をメインのウィンドウからの要求であると勘違いし、window.top に対して応答を返却する問題 (Frame Confusion) が指摘されている。<span class="footnote">[<a id="_footnoteref_48" class="footnote" href="#_footnote_48" title="View footnote.">48</a>]</span> この指摘について MITRE は、Cordova の設計上の欠陥(脆弱性)なのか iOS の既知の振る舞いなのかを判断できないとしている。<span class="footnote">[<a id="_footnoteref_49" class="footnote" href="#_footnote_49" title="View footnote.">49</a>]</span></p>
+<p>iOS 版 Cordova に関する脆弱性はこれまでに公開されていない。厳密に言えば、2014年にテキサス大学の研究者らによって、ネイティブ側の実装が iframe からのブリッジに対する要求をメインのウィンドウからの要求であると勘違いし、window.top に対して応答を返却する問題 (Frame Confusion) が指摘されている。<sup class="footnote">[<a id="_footnoteref_48" class="footnote" href="#_footnotedef_48" title="View footnote.">48</a>]</sup> この指摘について MITRE は、Cordova の設計上の欠陥(脆弱性)なのか iOS の既知の振る舞いなのかを判断できないとしている。<sup class="footnote">[<a id="_footnoteref_49" class="footnote" href="#_footnotedef_49" title="View footnote.">49</a>]</sup></p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_ホワイトリスト_2">5.2. ホワイトリスト</h3>
 <div class="sect3">
-<h4 id="_メカニズム_cordova_3_x">5.2.1. メカニズム(Cordova 3.x)</h4>
+<h4 id="_メカニズムcordova_3_x">5.2.1. メカニズム(Cordova 3.x)</h4>
 <div class="paragraph">
 <p>ホワイトリストは、WebView 上でアクセス可能なリソースをあらかじめ指定したドメインのみに制限するためのセキュリティ機能である。アプリ開発者は、Cordova アプリの config.xml に &lt;access origin="[origin]" /&gt; のように記述することでホワイトリストを定義することができる。この仕様は <a href="http://www.w3.org/TR/widgets-access/">W3C Widget Access</a> に基づいている。</p>
 </div>
@@ -1195,7 +1231,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <div class="ulist">
 <ul>
 <li>
-<p>ホワイトリストに何も指定しない場合でも、file:、content:、data:に対するアクセスは無条件で許可される <span class="footnote">[<a id="_footnoteref_50" class="footnote" href="#_footnote_50" title="View footnote.">50</a>]</span></p>
+<p>ホワイトリストに何も指定しない場合でも、file:、content:、data:に対するアクセスは無条件で許可される <sup class="footnote">[<a id="_footnoteref_50" class="footnote" href="#_footnotedef_50" title="View footnote.">50</a>]</sup></p>
 </li>
 <li>
 <p>アクセス先の URL が sms: や mailto: などのカスタム URL スキームである場合、その URL を処理できるアプリが開かれる。</p>
@@ -1208,10 +1244,10 @@ We have now determined that applications which use the Java Cryptography Archite
 </div>
 </li>
 <li>
-<p>Android 版 Cordova と同様に、ホワイトリストの設定時にオリジンのプロトコルスキームを省略した場合、http と https でのアクセスを許可する。<span class="footnote">[<a id="_footnoteref_51" class="footnote" href="#_footnote_51" title="View footnote.">51</a>]</span> したがって、プロトコルスキームを省略した場合に意図せず http 通信を行い、中間者攻撃の影響を受ける可能性がある</p>
+<p>Android 版 Cordova と同様に、ホワイトリストの設定時にオリジンのプロトコルスキームを省略した場合、http と https でのアクセスを許可する。<sup class="footnote">[<a id="_footnoteref_51" class="footnote" href="#_footnotedef_51" title="View footnote.">51</a>]</sup> したがって、プロトコルスキームを省略した場合に意図せず http 通信を行い、中間者攻撃の影響を受ける可能性がある</p>
 </li>
 <li>
-<p>origin="https://*.*.google.com" というように、サブドメインに「*.」を2つ以上連続で指定した場合、正規表現の不備によりホスト名が「*」のみとなる <span class="footnote">[<a id="_footnoteref_52" class="footnote" href="#_footnote_52" title="View footnote.">52</a>]</span> このため、開発者が意図せず全てのホスト名をホワイトリストで許可してしまう可能性がある。</p>
+<p>origin="https://*.*.google.com" というように、サブドメインに「*.」を2つ以上連続で指定した場合、正規表現の不備によりホスト名が「*」のみとなる <sup class="footnote">[<a id="_footnoteref_52" class="footnote" href="#_footnotedef_52" title="View footnote.">52</a>]</sup> このため、開発者が意図せず全てのホスト名をホワイトリストで許可してしまう可能性がある。</p>
 </li>
 </ul>
 </div>
@@ -1220,7 +1256,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <div class="sect3">
 <h4 id="_運用上の課題">5.2.3. 運用上の課題</h4>
 <div class="paragraph">
-<p>Cordova を使用する 7167 個の Android アプリを対象に対して行われたテキサス大学の調査によると、2124個 (約30%) のアプリのホワイトリストで、全てのドメインが許可されていた。<span class="footnote">[<a id="_footnoteref_53" class="footnote" href="#_footnote_53" title="View footnote.">53</a>]</span></p>
+<p>Cordova を使用する 7167 個の Android アプリを対象に対して行われたテキサス大学の調査によると、2124個 (約30%) のアプリのホワイトリストで、全てのドメインが許可されていた。<sup class="footnote">[<a id="_footnoteref_53" class="footnote" href="#_footnotedef_53" title="View footnote.">53</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>研究者らは、ホワイトリストの運用上の課題として次の2点を指摘している。</p>
@@ -1254,7 +1290,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p><a href="https://github.com/apache/cordova-android/blob/master/RELEASENOTES.md">Cordovaのリリースノート</a>を定期的に確認し、自身のアプリに影響のある脆弱性の情報がアナウンスされた場合は、Cordovaをアップデートしてアプリを作り直す。</p>
 </div>
 <div class="paragraph">
-<p>2015年6月時点、外部アプリから攻撃可能な脆弱性 CVE-2015-1835 が対策されている Cordova 3.7.2 または 4.0.2 以上を使用することが望ましい。</p>
+<p>2015年11月時点、https://cordova.apache.org/announcements/2015/11/20/security.html[3.x 系のCordovaのサポートは既に終了]しているため、Cordova 4.1.0 以上を使用することが望ましい。</p>
 </div>
 <div class="paragraph">
 <p>Cordova をアップデートした場合、リグレッションが発生する、あるいは既存のアプリの変更や再検証が必要となることも考えられる。たとえば、Android 版 Cordova 3.6.0 では External Application Whitelist が導入されたため、アプリ開発者が config.xml を変更しない限り、mailto: や sms: スキームの URL を開くことができない。このように、Cordova の仕様変更の影響を受け、正常に動作していたプラグインが動かなくなるケースが考えられる。</p>
@@ -1278,10 +1314,10 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>Cordova アプリにおいても、CSPを適切に活用することで、悪性コードによるブリッジの悪用や、ホワイトリストの穴を突いた攻撃の緩和を期待できる。しかし、CSP を利用できる OS は、Android 4.4 以上および iOS 7 以上であり、特に Android においては CSP をサポートする端末の普及が十分とは言えないのが現状である。</p>
 </div>
 <div class="paragraph">
-<p>Android 4.0 以降の端末では、標準の WebView の代わりに Crosswalk を利用することでCSPを使用できる。 <span class="footnote">[<a id="_footnoteref_54" class="footnote" href="#_footnote_54" title="View footnote.">54</a>]</span> Crosswalk は、Chrome ブラウザと同等の CSP が利用できる上、W3C の <a href="http://www.w3.org/TR/appmanifest/">Manifest for web application</a> に対応しており、Manifest ファイルを用いて WebView の外から CSP を適用できる。</p>
+<p>Android 4.0 以降の端末では、標準の WebView の代わりに Crosswalk を利用することでCSPを使用できる。 <sup class="footnote">[<a id="_footnoteref_54" class="footnote" href="#_footnotedef_54" title="View footnote.">54</a>]</sup> Crosswalk は、Chrome ブラウザと同等の CSP が利用できる上、W3C の <a href="http://www.w3.org/TR/appmanifest/">Manifest for web application</a> に対応しており、Manifest ファイルを用いて WebView の外から CSP を適用できる。</p>
 </div>
 <div class="paragraph">
-<p>Android 版 Cordova は現時点では CSP に対応していないため、CSP の保護機能の一部を無効化する必要がある。CSP には、文字列から JavaScript のコードを動的生成するようなメソッド (eval等) の実行を制限する機能が存在する。 <span class="footnote">[<a id="_footnoteref_55" class="footnote" href="#_footnote_55" title="View footnote.">55</a>]</span> しかし、Android 版 Cordova 3.6.4 では、一部の処理に eval が用いられているため、この制限を適用できない。</p>
+<p>Android 版 Cordova は現時点では CSP に対応していないため、CSP の保護機能の一部を無効化する必要がある。CSP には、文字列から JavaScript のコードを動的生成するようなメソッド (eval等) の実行を制限する機能が存在する。 <sup class="footnote">[<a id="_footnoteref_55" class="footnote" href="#_footnotedef_55" title="View footnote.">55</a>]</sup> しかし、Android 版 Cordova 3.6.4 では、一部の処理に eval が用いられているため、この制限を適用できない。</p>
 </div>
 <div class="paragraph">
 <p>iOS 版 Cordova は CSP に対応しており、CSP でインラインスクリプトや eval の使用制限を施しても動作する。ただし、JavaScript からネイティブ側へのブリッジに iframe を使用するため、CSP の frame-src 句に「gap:」を指定し、ブリッジアクセスの際に使われる gap スキームの URL をフレーム内で開くことを許可しなければならない。</p>
@@ -1321,7 +1357,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <div class="sect2">
 <h3 id="_cordova_プラグインの脆弱性">6.1. Cordova プラグインの脆弱性</h3>
 <div class="paragraph">
-<p>Cordovaプラグインには、Table 2 の3件の脆弱性が Cigital 社の研究者 Neil Bergman 氏により報告されている。</p>
+<p>Cordovaプラグインには、Table 2 の4件の脆弱性がこれまでに指摘されている。内3件は Cigital 社の研究者 Neil Bergman 氏により報告されたものであり、1件は本調査の中で発見したものである。</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 70%;">
 <caption class="title">Table 2. Cordova プラグインの脆弱性</caption>
@@ -1336,20 +1372,24 @@ We have now determined that applications which use the Java Cryptography Archite
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0072">CVE-2014-0072</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">iOS版File-Transferプラグインのバージョン0.4.2未満におけるデフォルト設定時のサーバ証明書検証バイパス <span class="footnote">[<a id="_footnoteref_56" class="footnote" href="#_footnote_56" title="View footnote.">56</a>]</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">iOS版File-Transferプラグインのバージョン0.4.2未満におけるデフォルト設定時のサーバ証明書検証バイパス <sup class="footnote">[<a id="_footnoteref_56" class="footnote" href="#_footnotedef_56" title="View footnote.">56</a>]</sup></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0073">CVE-2014-0073</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">iOS版In-App-Browserプラグインのバージョン0.3.2未満におけるJavaScriptインジェクションの脆弱性 <span class="footnote">[<a id="_footnoteref_57" class="footnote" href="#_footnote_57" title="View footnote.">57</a>]</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">iOS版In-App-Browserプラグインのバージョン0.3.2未満におけるJavaScriptインジェクションの脆弱性 <sup class="footnote">[<a id="_footnoteref_57" class="footnote" href="#_footnotedef_57" title="View footnote.">57</a>]</sup></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Android 版のCustom URL Scheme (LaunchMyApp) プラグインのバージョン 3.2.1未満におけるリモート JavaScript インジェクションの脆弱性 <span class="footnote">[<a id="_footnoteref_58" class="footnote" href="#_footnote_58" title="View footnote.">58</a>]</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Android 版のCustom URL Scheme (LaunchMyApp) プラグインのバージョン 3.2.1未満におけるリモート JavaScript インジェクションの脆弱性 <sup class="footnote">[<a id="_footnoteref_58" class="footnote" href="#_footnotedef_58" title="View footnote.">58</a>]</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5204">CVE-2015-5204</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Android版File-Transferプラグインのバージョン1.2.1以下におけるHTTPリクエストヘッダインジェクションの脆弱性 <sup class="footnote">[<a id="_footnoteref_59" class="footnote" href="#_footnotedef_59" title="View footnote.">59</a>]</sup></p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>プラグインの脆弱性は過去に3件報告されているのみである。これは、Cordova を使用するハイブリッドアプリが比較的少なく、セキュリティ研究者の調査対象としてそれほど注目されていないためであり、プラグイン開発でも多くの脆弱性が作り込まれ多数潜在していると考えられる。</p>
+<p>プラグインの脆弱性は過去に3件報告されているのみであった。これは、Cordova を使用するハイブリッドアプリが比較的少なく、セキュリティ研究者の調査対象としてそれほど注目されていないためであり、プラグイン開発でも多くの脆弱性が作り込まれ多数潜在していると考えられる。</p>
 </div>
 <div class="paragraph">
 <p>プラグインは、JavaScript とネイティブコードの両方の実装を有することから、Web アプリの脆弱性とネイティブアプリの脆弱性の両方が作り込まれる恐れがある。</p>
@@ -1358,7 +1398,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>プラグインに作り込まれる可能性の高い脆弱性の一例として、JavaScript インジェクションの脆弱性が考えられる。プラグインのネイティブコードにおいて、外部から渡された文字列を元に JavaScript のコードを組み立て WebView に挿入する処理を行っている場合、この脆弱性が作り込まれる可能性がある。</p>
 </div>
 <div class="paragraph">
-<p>Androidでは、CordovaWebView#sendJavascript() を用いることで、プラグインのネイティブコードから WebView に対して任意の JavaScript 文字列を実行させることが可能である。この API は今後廃止予定であるが<span class="footnote">[<a id="_footnoteref_59" class="footnote" href="#_footnote_59" title="View footnote.">59</a>]</span>、Cordova 3.7 では、プラグイン側から実行することができる。また、Android では、プラグインから CordovaWebView インスタンスに対するアクセスが可能であるため、外部から渡された javascript スキームの URL をプラグインが WebView.loadUrl() の第1引数に指定するような場合にも、任意の JavaScript が実行される恐れがある。</p>
+<p>Androidでは、CordovaWebView#sendJavascript() を用いることで、プラグインのネイティブコードから WebView に対して任意の JavaScript 文字列を実行させることが可能である。この API は今後廃止予定であるが<sup class="footnote">[<a id="_footnoteref_60" class="footnote" href="#_footnotedef_60" title="View footnote.">60</a>]</sup>、Cordova 3.7 では、プラグイン側から実行することができる。また、Android では、プラグインから CordovaWebView インスタンスに対するアクセスが可能であるため、外部から渡された javascript スキームの URL をプラグインが WebView.loadUrl() の第1引数に指定するような場合にも、任意の JavaScript が実行される恐れがある。</p>
 </div>
 <div class="paragraph">
 <p>iOS では、Android の sendJavascript() に相当する仕組みは提供されていないが、プラグインの Web アプリ側の実装が、ネイティブコードから受け取った文字列を eval() に渡すような作りになっている場合、プログラムの外から受け取った意図しない JavaScript コードの実行を許してしまう可能性が考えられる。</p>
@@ -1378,7 +1418,7 @@ We have now determined that applications which use the Java Cryptography Archite
 <p>upload 関数と download 関数には、boolean 型引数 trustAllHosts を指定できる。true が指定された場合、HTTPS でサーバと通信する際に、サーバの証明書の検証が行われない（デフォルト値は false）。</p>
 </div>
 <div class="paragraph">
-<p>iOS 版の File-Transfer プラグイン (バージョン 0.1.0 から 0.4.1 まで) では、trustAllHosts のデフォルト値が true になっており、アプリ開発者が明示的に false に指定しない限り、サーバ証明書検証が行われない。<span class="footnote">[<a id="_footnoteref_60" class="footnote" href="#_footnote_60" title="View footnote.">60</a>]</span></p>
+<p>iOS 版の File-Transfer プラグイン (バージョン 0.1.0 から 0.4.1 まで) では、trustAllHosts のデフォルト値が true になっており、アプリ開発者が明示的に false に指定しない限り、サーバ証明書検証が行われない。<sup class="footnote">[<a id="_footnoteref_61" class="footnote" href="#_footnotedef_61" title="View footnote.">61</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>これは、File-Transfer プラグイン 0.4.2 で修正されている。</p>
@@ -1544,7 +1584,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>DOM Based XSS は XSSの 一種である。サーバ側で HTML を動的に生成する際に発生する従来の XSS とは異なり、クライアント側で JavaScript を用いて DOM を生成する際に発生する。</p>
 </div>
 <div class="paragraph">
-<p>従来の Web アプリでは、ユーザの入力値やサーバから取得したデータが主な攻撃経路であった。ハイブリッドアプリではこれらに加え、次に挙げるデータも攻撃ベクタとなる。<span class="footnote">[<a id="_footnoteref_61" class="footnote" href="#_footnote_61" title="View footnote.">61</a>]</span></p>
+<p>従来の Web アプリでは、ユーザの入力値やサーバから取得したデータが主な攻撃経路であった。ハイブリッドアプリではこれらに加え、次に挙げるデータも攻撃ベクタとなる。<sup class="footnote">[<a id="_footnoteref_62" class="footnote" href="#_footnotedef_62" title="View footnote.">62</a>]</sup></p>
 </div>
 <div class="ulist">
 <ul>
@@ -1576,7 +1616,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>ネイティブアプリでは、上記のようなデータを画面の表示データとして扱う際、特別にセキュリティ上の注意を払う必要がなかったことから、Web の開発経験の浅い開発者が Cordova アプリを開発する場合に、XSSを作り込む可能性が高くなる恐れがある。</p>
 </div>
 <div class="paragraph">
-<p>DOM Based XSS を防ぐには、データを用途(コンテキスト)に応じてエスケープする必要がある。<span class="footnote">[<a id="_footnoteref_62" class="footnote" href="#_footnote_62" title="View footnote.">62</a>]</span> しかし、コンテキストは幾通りもあり、その判断を誤ると XSS を防げない。また、複数のコンテキストを同時に考慮しなければならない場合等、判断が困難な場合もある。<span class="footnote">[<a id="_footnoteref_63" class="footnote" href="#_footnote_63" title="View footnote.">63</a>]</span></p>
+<p>DOM Based XSS を防ぐには、データを用途(コンテキスト)に応じてエスケープする必要がある。<sup class="footnote">[<a id="_footnoteref_63" class="footnote" href="#_footnotedef_63" title="View footnote.">63</a>]</sup> しかし、コンテキストは幾通りもあり、その判断を誤ると XSS を防げない。また、複数のコンテキストを同時に考慮しなければならない場合等、判断が困難な場合もある。<sup class="footnote">[<a id="_footnoteref_64" class="footnote" href="#_footnotedef_64" title="View footnote.">64</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Cordova　アプリの中には、 <a href="http://en.wikipedia.org/wiki/Single-page_application">Single Page Application</a> (SPA) と呼ばれる概念を取り入れているものがある。これは、JavaScript を用いて動的に DOM を切り替えることで、1つの HTML ドキュメントで複数のページ遷移を実現している。シームレスな画面遷移の演出や、異なるページ間での状態の引き継ぎが容易であるといったメリットがある一方で、SPA では、外部から入力されたデータがページを横断して使われる可能性があり、コードレビューや脆弱性検査等で XSS を検出することがさらに難しくなる。</p>
@@ -1589,11 +1629,11 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 </div>
 <div class="paragraph">
 <div class="title">ローカルファイルの漏洩</div>
-<p>Android版 Cordova は、file スキームで動作する JavaScript から、他のローカルファイルを含む任意のオリジンに対するアクセスを許可しているため <span class="footnote">[<a id="_footnoteref_64" class="footnote" href="#_footnote_64" title="View footnote.">64</a>]</span>、file スキームで動作する HTML に XSS があった場合、アプリの権限でアクセスできる任意のローカルファイルを盗まれる可能性がある。Android の場合、機密性の高い情報としては、WebView の閲覧履歴、キャッシュ、Cookie、フォームの入力内容 <span class="footnote">[<a id="_footnoteref_65" class="footnote" href="#_footnote_65" title="View footnote.">65</a>]</span> などが挙げられる。例えば、フォームの入力履歴は、file:///data/data/&lt;pkg&gt;/databases/webview.db にアクセスすることで取得できる。また、 READ_EXTERNAL_STORAGE パーミッションを有するアプリの場合、SD カード上の任意のデータを盗まれる可能性もある。さらに、Android では、file スキームで動作する JavaScript は、任意のオリジンの window オブジェクトに対するアクセスが許されている。windowオブジェクトを通じて、他のウィンドウやフレームで開かれた任意のオリジンのドキュメントに対してスクリプトを挿入される可能性もある。</p>
+<p>Android版 Cordova は、file スキームで動作する JavaScript から、他のローカルファイルを含む任意のオリジンに対するアクセスを許可しているため <sup class="footnote">[<a id="_footnoteref_65" class="footnote" href="#_footnotedef_65" title="View footnote.">65</a>]</sup>、file スキームで動作する HTML に XSS があった場合、アプリの権限でアクセスできる任意のローカルファイルを盗まれる可能性がある。Android の場合、機密性の高い情報としては、WebView の閲覧履歴、キャッシュ、Cookie、フォームの入力内容 <sup class="footnote">[<a id="_footnoteref_66" class="footnote" href="#_footnotedef_66" title="View footnote.">66</a>]</sup> などが挙げられる。例えば、フォームの入力履歴は、file:///data/data/&lt;pkg&gt;/databases/webview.db にアクセスすることで取得できる。また、 READ_EXTERNAL_STORAGE パーミッションを有するアプリの場合、SD カード上の任意のデータを盗まれる可能性もある。さらに、Android では、file スキームで動作する JavaScript は、任意のオリジンの window オブジェクトに対するアクセスが許されている。windowオブジェクトを通じて、他のウィンドウやフレームで開かれた任意のオリジンのドキュメントに対してスクリプトを挿入される可能性もある。</p>
 </div>
 <div class="paragraph">
 <div class="title">UIWebView におけるローカルファイルへのアクセス</div>
-<p>iOS 7 以前の UIWebView では、下記の特定の条件において、ローカルの HTML からアプリのサンドボックス内にある任意のローカルファイルを読み出すことができる。<span class="footnote">[<a id="_footnoteref_66" class="footnote" href="#_footnote_66" title="View footnote.">66</a>]</span></p>
+<p>iOS 7 以前の UIWebView では、下記の特定の条件において、ローカルの HTML からアプリのサンドボックス内にある任意のローカルファイルを読み出すことができる。<sup class="footnote">[<a id="_footnoteref_67" class="footnote" href="#_footnotedef_67" title="View footnote.">67</a>]</sup></p>
 </div>
 <div class="ulist">
 <ul>
@@ -1686,12 +1726,12 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>HTML のイベントハンドラ属性値 (onClick, formaction など)</p>
 </li>
 <li>
-<p>Range.createContextualFragment() (DOM への出力を行わなくとも、文字列から HTML の断片(フラグメント)を生成した時点で XSS が発生する) <span class="footnote">[<a id="_footnoteref_67" class="footnote" href="#_footnote_67" title="View footnote.">67</a>]</span></p>
+<p>Range.createContextualFragment() (DOM への出力を行わなくとも、文字列から HTML の断片(フラグメント)を生成した時点で XSS が発生する) <sup class="footnote">[<a id="_footnoteref_68" class="footnote" href="#_footnotedef_68" title="View footnote.">68</a>]</sup></p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>第三者が作成したフレームワークやライブラリを利用する場合、それらが提供する API の誤用によって XSS が発生する恐れがある。jQuery の場合、http()、append()、before()、insertAfter()、prepend() などの関数では、スクリプトを含むHTML の文字列を引数に渡すことにより XSS が発生する。<span class="footnote">[<a id="_footnoteref_68" class="footnote" href="#_footnote_68" title="View footnote.">68</a>]</span></p>
+<p>第三者が作成したフレームワークやライブラリを利用する場合、それらが提供する API の誤用によって XSS が発生する恐れがある。jQuery の場合、http()、append()、before()、insertAfter()、prepend() などの関数では、スクリプトを含むHTML の文字列を引数に渡すことにより XSS が発生する。<sup class="footnote">[<a id="_footnoteref_69" class="footnote" href="#_footnotedef_69" title="View footnote.">69</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Android 5.0 の WebView では、Web Components の構成機能の一つである HTML Imports が実装されているが、&lt;link&gt; タグで外部から読みこんだ HTML ファイル (imports) に XSS 脆弱性がある場合、埋め込まれたスクリプトがロード元の HTMLのコンテキストで実行される恐れがある。</p>
@@ -1723,6 +1763,9 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>引数の fileURL には、サーバに送信するローカルファイルのパスを指定するが、このとき、外部から「/」や「%2f」といったディレクトリセパレータを含むファイル名(たとえば　../../../../default.prop) が渡された場合、意図しないディレクトリにあるファイルがアクセスされる恐れがある(ディレクトリトラバーサル攻撃)</p>
 </li>
 <li>
+<p>引数の options には headers というプロパティがあり、ファイルをアップロードする際の HTTP リクエストヘッダを指定できる。リクエストヘッダは、ヘッダ名とヘッダ値を key/value 形式で指定できるが、Android版File-Transferプラグインのバージョン1.2.1以下では、ここで、key または value のいずれかの値に対して、アプリが外部からの任意の値指定を許している場合、攻撃者は改行コード(\n)を含むヘッダ名やヘッダ値を指定することにより、HTTP リクエストヘッダの分割を生じさせ、任意のHTTPリクエストヘッダを付加することができる。</p>
+</li>
+<li>
 <p>アプリがデータを読み書きするディレクトリパスのいずれかに対して、攻撃者がシンボリックリンクを作成可能な場合、ディレクトリ外のファイルにアクセスされる恐れがある (シンボリックリンク攻撃)</p>
 </li>
 <li>
@@ -1744,6 +1787,9 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <li>
 <p>引数の target には、サーバからダウンロードしたファイルの保存先をパスで指定できるため、upload 関数の fileURL に対する注意点と同様に、ディレクトリトラバーサルやシンボリックリンク攻撃の対策が必要となる</p>
 </li>
+<li>
+<p>引数の options には headers というプロパティがあり、ファイルをダウンロードする際の HTTP リクエストヘッダを指定できる。Android版File-Transferプラグインのバージョン1.2.1以下では、upload 関数の headers プロパティに対する注意点と同様に、HTTP リクエストヘッダ分割攻撃が生じる可能性があるため、注意を要する</p>
+</li>
 </ul>
 </div>
 </div>
@@ -1759,7 +1805,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>File プラグインでは、ローカルのディレクトリリストやファイルリストを取得する機能がある。ディレクトリ名やファイル名には、「&lt;」や「&gt;」といった文字列を含めることができるため、これらの文字列を innerHTML などで DOM に出力した場合、DOM Based XSS となる可能性がある。</p>
 </div>
 <div class="paragraph">
-<p>Googleが運営する HTML5 の紹介サイト「HTML5Rocks」には、FileSystem API の使い方を紹介したチュートリアルのページがある。<span class="footnote">[<a id="_footnoteref_69" class="footnote" href="#_footnote_69" title="View footnote.">69</a>]</span>
+<p>Googleが運営する HTML5 の紹介サイト「HTML5Rocks」には、FileSystem API の使い方を紹介したチュートリアルのページがある。<sup class="footnote">[<a id="_footnoteref_70" class="footnote" href="#_footnotedef_70" title="View footnote.">70</a>]</sup>
 その中に「ディレクトリ コンテンツの読み込み」というサンプルコードがあるが、ファイル名を innerHTML で出力しているため、DOM Based XSS が生じる恐れがある。
 アプリの開発者が、この記事のサンプルコードを流用した場合、DOM Based XSS を作り込む恐れがある。</p>
 </div>
@@ -1849,7 +1895,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>開発者が使いたい機能を実現するプラグインが存在しない場合、ネイティブコードを使った実装を行い、プラットフォーム固有の脆弱性を作り込んでしまう可能性がある。</p>
 </div>
 <div class="paragraph">
-<p>2014年第3四半期(7月〜9月)にIPAに届け出のあった Android 関連の脆弱性の84%は「SSL証明書を適切に検証しない脆弱性」であった。<span class="footnote">[<a id="_footnoteref_70" class="footnote" href="#_footnote_70" title="View footnote.">70</a>]</span> また、2012年には Androidアプリの脆弱性に関する届出の7割が「アクセス制御の不備」に関するものであった。<span class="footnote">[<a id="_footnoteref_71" class="footnote" href="#_footnote_71" title="View footnote.">71</a>]</span> こうしたネイティブアプリの脆弱性が Cordova アプリに作り込まれる可能性が考えられる。</p>
+<p>2014年第3四半期(7月〜9月)にIPAに届け出のあった Android 関連の脆弱性の84%は「SSL証明書を適切に検証しない脆弱性」であった。<sup class="footnote">[<a id="_footnoteref_71" class="footnote" href="#_footnotedef_71" title="View footnote.">71</a>]</sup> また、2012年には Androidアプリの脆弱性に関する届出の7割が「アクセス制御の不備」に関するものであった。<sup class="footnote">[<a id="_footnoteref_72" class="footnote" href="#_footnotedef_72" title="View footnote.">72</a>]</sup> こうしたネイティブアプリの脆弱性が Cordova アプリに作り込まれる可能性が考えられる。</p>
 </div>
 </div>
 <div class="sect2">
@@ -1870,7 +1916,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 <p>第三者が作成したライブラリを利用する場合、使用するライブラリの脆弱性情報を継続的にモニタリングし、脆弱性が見つかった場合は、脆弱性が修正されたバージョンのライブラリを組み込んでアプリをアップデートする必要がある。</p>
 </div>
 <div class="paragraph">
-<p>iOS では、アプリに組み込んだ広告モジュールが iOS の非公開 API である NSURLRequest の allowsAnyHTTPSCertificateForHost メソッドを実装していたため、アプリ全体の HTTPS 通信が証明書を確認しない状況となる例があった。利用する広告モジュールの脆弱性情報もモニタリングすべきである。</p>
+<p>iOS では、アプリに組み込んだParty Track SDKという広告モジュールが iOS の非公開 API である NSURLRequest の allowsAnyHTTPSCertificateForHost メソッドを実装していたため、これを組み込んだアプリ全体の HTTPS 通信が証明書を確認しない状況となる例があった。<sup class="footnote">[<a id="_footnoteref_73" class="footnote" href="#_footnotedef_73" title="View footnote.">73</a>]</sup> 利用する広告モジュールの脆弱性情報もモニタリングすべきである。</p>
 </div>
 </div>
 </div>
@@ -1900,11 +1946,11 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 </div>
 <div class="paragraph">
 <div class="title">ネットワークから取得する必要の無いリソースは、アプリのパッケージ内に含め、ローカルのファイルシステムを参照する</div>
-<p>ただし、Android 版の Cordova は、ローカルに保存された HTML ファイルから他の任意のローカルファイルを参照できるため、アプリに XSS 脆弱性があると、端末のファイルを盗まれる恐れがある。<span class="footnote">[<a id="_footnoteref_72" class="footnote" href="#_footnote_72" title="View footnote.">72</a>]</span></p>
+<p>ただし、Android 版の Cordova は、ローカルに保存された HTML ファイルから他の任意のローカルファイルを参照できるため、アプリに XSS 脆弱性があると、端末のファイルを盗まれる恐れがある。<sup class="footnote">[<a id="_footnoteref_74" class="footnote" href="#_footnotedef_74" title="View footnote.">74</a>]</sup></p>
 </div>
 <div class="paragraph">
 <div class="title">ネットワークからリソースを取得する際は、HTTP でなく HTTPS を利用する</div>
-<p>W3C の Web Application Security Working Group では、ネットワークから参照されるリソースを次の2種類に分類している。<span class="footnote">[<a id="_footnoteref_73" class="footnote" href="#_footnote_73" title="View footnote.">73</a>]</span></p>
+<p>W3C の Web Application Security Working Group では、ネットワークから参照されるリソースを次の2種類に分類している。<sup class="footnote">[<a id="_footnoteref_75" class="footnote" href="#_footnotedef_75" title="View footnote.">75</a>]</sup></p>
 </div>
 <div class="ulist">
 <ul>
@@ -1921,20 +1967,20 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 </div>
 <div class="paragraph">
 <div class="title">HTTPS通信時のサーバ証明書検証を適切に行う</div>
-<p>Android　では、WebView がサーバ証明書の検証エラーを検出した場合に WebViewClient#onReceivedSslError ハンドラが呼ばれる。アプリ開発者がこのハンドラの中で SslErrorHandler.proceed() を呼ぶと、検証エラーを無視して通信が続行される。<span class="footnote">[<a id="_footnoteref_74" class="footnote" href="#_footnote_74" title="View footnote.">74</a>]</span></p>
+<p>Android　では、WebView がサーバ証明書の検証エラーを検出した場合に WebViewClient#onReceivedSslError ハンドラが呼ばれる。アプリ開発者がこのハンドラの中で SslErrorHandler.proceed() を呼ぶと、検証エラーを無視して通信が続行される。<sup class="footnote">[<a id="_footnoteref_76" class="footnote" href="#_footnotedef_76" title="View footnote.">76</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>iOSでは, NSURLConnectionDelegateのconnection:didReceiveAuthenticationChallenge: メソッドの中で          <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Protocols/NSURLAuthenticationChallengeSender_Protocol/index.html#//apple_ref/occ/intfm/NSURLAuthenticationChallengeSender/continueWithoutCredentialForAuthenticationChallenge:">continueWithoutCredentialForAuthenticationChallenge</a> メソッドを実行することで、UIWebView での証明書検証が無効化されてしまう。</p>
 </div>
 <div class="paragraph">
 <div class="title">HTTP Strict Transport Security (HSTS) を使用する</div>
-<p>Android 4.4 以降の WebView は HSTS をサポートしているため、これにより意図せず HTTP で通信してしまうリスクを軽減できる。<span class="footnote">[<a id="_footnoteref_75" class="footnote" href="#_footnote_75" title="View footnote.">75</a>]</span></p>
+<p>Android 4.4 以降の WebView は HSTS をサポートしているため、これにより意図せず HTTP で通信してしまうリスクを軽減できる。<sup class="footnote">[<a id="_footnoteref_77" class="footnote" href="#_footnotedef_77" title="View footnote.">77</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>iOS の UIWebView も iOS 7以降であれば標準で HSTS をサポートしている。</p>
 </div>
 <div class="paragraph">
-<p>Android 5.0 以降の WebView は Mixed Content に対応しており、HTTPS のページから HTTP のリソースを読み込まないように保護することができる。<span class="footnote">[<a id="_footnoteref_76" class="footnote" href="#_footnote_76" title="View footnote.">76</a>]</span></p>
+<p>Android 5.0 以降の WebView は Mixed Content に対応しており、HTTPS のページから HTTP のリソースを読み込まないように保護することができる。<sup class="footnote">[<a id="_footnoteref_78" class="footnote" href="#_footnotedef_78" title="View footnote.">78</a>]</sup></p>
 </div>
 <div class="paragraph">
 <div class="title">Crosswalk を使用する</div>
@@ -1942,7 +1988,7 @@ The InAppBrowser window behaves like a standard web browser, and can&#8217;t acc
 </div>
 <div class="paragraph">
 <div class="title">公開鍵ピンニングを使用する</div>
-<p>Android 5.0 の WebView および Crosswalk は、Android 端末のシステムレベルの証明書ピンニング (X509TrustManagerExtensions) をサポートしている。<span class="footnote">[<a id="_footnoteref_77" class="footnote" href="#_footnote_77" title="View footnote.">77</a>]</span> <span class="footnote">[<a id="_footnoteref_78" class="footnote" href="#_footnote_78" title="View footnote.">78</a>]</span> <span class="footnote">[<a id="_footnoteref_79" class="footnote" href="#_footnote_79" title="View footnote.">79</a>]</span></p>
+<p>Android 5.0 の WebView および Crosswalk は、Android 端末のシステムレベルの証明書ピンニング (X509TrustManagerExtensions) をサポートしている。<sup class="footnote">[<a id="_footnoteref_79" class="footnote" href="#_footnotedef_79" title="View footnote.">79</a>]</sup> <sup class="footnote">[<a id="_footnoteref_80" class="footnote" href="#_footnotedef_80" title="View footnote.">80</a>]</sup> <sup class="footnote">[<a id="_footnoteref_81" class="footnote" href="#_footnotedef_81" title="View footnote.">81</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>ピンの登録には、UPDATE_PINS という Broadcast を利用する必要があり、これは OEM のプリインストールアプリや Platform署名が施されたアプリのみが実行できる。</p>
@@ -1956,7 +2002,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 </div>
 </div>
 <div class="paragraph">
-<p>iOSでは, UIWebView で公開鍵ピンニングを使用するための汎用 API は存在しないため Cordova で公開鍵ピンニングを実現することは困難である。UIWebView を介さない通信においては、NSURLConnectionDelegate の <a href="https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#iOS"> connection:didReceiveAuthenticationChallenge:</a> メソッドを通じて公開鍵ピンニングを実装することができる。UIWebView に公開鍵ピンニングの機能を組み込むことのできる商用のライブラリやプラグインは存在する。<span class="footnote">[<a id="_footnoteref_80" class="footnote" href="#_footnote_80" title="View footnote.">80</a>]</span> <span class="footnote">[<a id="_footnoteref_81" class="footnote" href="#_footnote_81" title="View footnote.">81</a>]</span> また、iOS 版 Chrome は、UIWebView を利用しているが、独自のネットワークライブラリを用いて HPKP を実装している。</p>
+<p>iOSでは, UIWebView で公開鍵ピンニングを使用するための汎用 API は存在しないため Cordova で公開鍵ピンニングを実現することは困難である。UIWebView を介さない通信においては、NSURLConnectionDelegate の <a href="https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#iOS"> connection:didReceiveAuthenticationChallenge:</a> メソッドを通じて公開鍵ピンニングを実装することができる。UIWebView に公開鍵ピンニングの機能を組み込むことのできる商用のライブラリやプラグインは存在する。<sup class="footnote">[<a id="_footnoteref_82" class="footnote" href="#_footnotedef_82" title="View footnote.">82</a>]</sup> <sup class="footnote">[<a id="_footnoteref_83" class="footnote" href="#_footnotedef_83" title="View footnote.">83</a>]</sup> また、iOS 版 Chrome は、UIWebView を利用しているが、独自のネットワークライブラリを用いて HPKP を実装している。</p>
 </div>
 </div>
 </div>
@@ -1973,10 +2019,10 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <p>たとえば、サーバに XSS 脆弱性がある場合、アプリのブリッジが悪用される危険性がある。第三者のサーバから配信される広告を、iframe を通じてアプリの画面の一部に組み込んでいる場合、広告コンテンツを通じてブリッジを悪用される恐れがある。</p>
 </div>
 <div class="paragraph">
-<p>実際、閲覧したユーザをマルウェアに感染させる悪質な広告(マルバタイジング)の報告は増加しており、2014年には、Yahooのページに組み込まれている広告の配信元が乗っ取られ、マルウェアをインストールしようとしたインシデントも報告されている。<span class="footnote">[<a id="_footnoteref_82" class="footnote" href="#_footnote_82" title="View footnote.">82</a>]</span></p>
+<p>実際、閲覧したユーザをマルウェアに感染させる悪質な広告(マルバタイジング)の報告は増加しており、2014年には、Yahooのページに組み込まれている広告の配信元が乗っ取られ、マルウェアをインストールしようとしたインシデントも報告されている。<sup class="footnote">[<a id="_footnoteref_84" class="footnote" href="#_footnotedef_84" title="View footnote.">84</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>2012年には、Android スマートフォンを狙った攻撃も報告されている。<span class="footnote">[<a id="_footnoteref_83" class="footnote" href="#_footnote_83" title="View footnote.">83</a>]</span></p>
+<p>2012年には、Android スマートフォンを狙った攻撃も報告されている。<sup class="footnote">[<a id="_footnoteref_85" class="footnote" href="#_footnotedef_85" title="View footnote.">85</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Cordovaアプリが普及した場合、これらが標的となり、悪意のある JavaScript を含む広告を介して、ブリッジを悪用する可能性も考えられる。</p>
@@ -2214,7 +2260,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <div class="sect2">
 <h3 id="_cordova_のバージョン">11.3. Cordova のバージョン</h3>
 <div class="paragraph">
-<p>調査対象の Cordova アプリのうち、バージョン3.5.0 以下の Cordova を使用しているアプリが 35.7% (129/361個) あった。<span class="footnote">[<a id="_footnoteref_84" class="footnote" href="#_footnote_84" title="View footnote.">84</a>]</span></p>
+<p>調査対象の Cordova アプリのうち、バージョン3.5.0 以下の Cordova を使用しているアプリが 35.7% (129/361個) あった。<sup class="footnote">[<a id="_footnoteref_86" class="footnote" href="#_footnotedef_86" title="View footnote.">86</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>2014年08月、Cordovaアプリを公開している開発者に対して Cordova の XAS 脆弱性に関する注意喚起がなされ、修正版である 3.5.1 へのアップグレードが推奨されている。</p>
@@ -2279,7 +2325,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <div class="sect2">
 <h3 id="_ネットワーク経由のリソース取得">11.5. ネットワーク経由のリソース取得</h3>
 <div class="paragraph">
-<p>HTML や JavaScript のリソースをネットワーク経由で取得するアプリは 10.0% (36/361個)存在した。<span class="footnote">[<a id="_footnoteref_85" class="footnote" href="#_footnote_85" title="View footnote.">85</a>]</span></p>
+<p>HTML や JavaScript のリソースをネットワーク経由で取得するアプリは 10.0% (36/361個)存在した。<sup class="footnote">[<a id="_footnoteref_87" class="footnote" href="#_footnotedef_87" title="View footnote.">87</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>このうち、http を使ってリソースを利用する可能性があるアプリは 80.6 % (29/36個) 含まれていた。これらのアプリは、http を用いてサーバからリソースを取得する際、中間者攻撃によってブリッジを不正操作するコードを注入され、ネイティブの機能が悪用される恐れがある。</p>
@@ -2294,13 +2340,13 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <div class="sect2">
 <h3 id="_crosswalkの使用">11.7. Crosswalkの使用</h3>
 <div class="paragraph">
-<p>Crosswalk を使用する Cordova アプリは 1.9% (7/361個) 存在した。<span class="footnote">[<a id="_footnoteref_86" class="footnote" href="#_footnote_86" title="View footnote.">86</a>]</span></p>
+<p>Crosswalk を使用する Cordova アプリは 1.9% (7/361個) 存在した。<sup class="footnote">[<a id="_footnoteref_88" class="footnote" href="#_footnotedef_88" title="View footnote.">88</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>サポートする最小の SDK バージョンはいずれも Android 4.0以下であった。これらのアプリを Android 4.0 の端末で動作させた場合、ユーザがアクセスした URL など機微な情報がログを通じて漏えいする恐れがある。</p>
 </div>
 <div class="paragraph">
-<p>また、Manifest.json で CSP を指定しているアプリは0個であった。<span class="footnote">[<a id="_footnoteref_87" class="footnote" href="#_footnote_87" title="View footnote.">87</a>]</span></p>
+<p>また、Manifest.json で CSP を指定しているアプリは0個であった。<sup class="footnote">[<a id="_footnoteref_89" class="footnote" href="#_footnotedef_89" title="View footnote.">89</a>]</sup></p>
 </div>
 </div>
 </div>
@@ -2318,11 +2364,11 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <p>5章と6章では、Cordova 本体や、Cordova プラグインが抱える脆弱性の傾向について検討した。Cordova のコードベースは規模が大きく、Cordova プラグインの数が多い一方で、これらに対する脆弱性の報告件数は少ない。しかし、本調査を行う過程で Cordova や Cordovaプラグインの脆弱性を新たに発見したように、今後ハイブリッドアプリへの注目が高まれば、より多くの脆弱性が報告されるのは時間の問題であると思われる。ハイブリッドアプリの開発者は、将来これらのコンポーネントに脆弱性が報告された場合に備え、Cordova 本体やアプリで利用するプラグインを定期的にアップデートできる開発体制を確立しておくべきである。また、Cordova プラグインを開発する際は、JavaScript インジェクションをはじめとする脆弱性を組み込まないように注意する必要がある。</p>
 </div>
 <div class="paragraph">
-<p>8章では、Cordova アプリのネイティブコードを開発する際に開発者が作り込む脆弱性について検討した。脆弱性を作り込まないためには、プラットフォームごとのセキュアコーディングの知識を習得し実践することが不可欠である。Android プラットフォームにおけるセキュアコーディングについては、JSSEC が公開する「Androidアプリのセキュア設計・セキュアコーディングガイド」が良い学習教材となる。iOS においては、個々の API の誤用と作り込まれる脆弱性について体系的にまとめたドキュメントは残念ながら存在しない。</p>
-</div>
-<div class="paragraph">
 <p>7章では、Cordova アプリの JavaScript コードに作り込みうる脆弱性について検討した。脆弱性は HTML5 の機能や Cordova プラグインの誤用によって作り込まれるが、最新のウェブブラウザ実装に対応した HTML5 のセキュアコーディング手法や Cordova プラグインの安全な使い方に関するノウハウは体系的にまとめられてはおらず、開発者を啓発するためのドキュメントの整備が望まれる。
 組み込まれる可能性の高い脆弱性の1つとして DOM Based XSS が挙げられるが、DOM Based XSS は開発者によるセキュアコーディグのみで根絶することは困難であり、XSS の対策を行いやすいフレームワークの導入や、CSP の併用等により、多層防御でリスクを軽減することが望ましい。</p>
+</div>
+<div class="paragraph">
+<p>8章では、Cordova アプリのネイティブコードを開発する際に開発者が作り込む脆弱性について検討した。脆弱性を作り込まないためには、プラットフォームごとのセキュアコーディングの知識を習得し実践することが不可欠である。Android プラットフォームにおけるセキュアコーディングについては、JSSEC が公開する「Androidアプリのセキュア設計・セキュアコーディングガイド」が良い学習教材となる。iOS においては、個々の API の誤用と作り込まれる脆弱性について体系的にまとめたドキュメントは残念ながら存在しない。</p>
 </div>
 <div class="paragraph">
 <p>9章では、サーバとのネットワーク通信に関する脆弱性について検討した。Cordova アプリでは、ネットワークから取得した HTML や JavaScript などのリソースからブリッジを利用できることから、中間者攻撃が行われた場合の影響が大きい。そのため、HTTPS 通信により信頼できるサーバからリソースを取得することが重要である。最近の WebView には、HSTS や Mixed Content をはじめとする HTTPS を安全に利用するための機能が搭載されていることから、これらを活用し、意図せず HTTP で通信するリスクを軽減することも望ましい。</p>
@@ -2340,8 +2386,8 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <p>アプリ開発者自身がセキュアコーディングを行うことで安全なアプリを開発するとともに、Cordova 自体がより安全なアプリを開発できるプラットフォームとして発展することが望まれる。</p>
 </div>
 <div class="paragraph">
-<p>例えば、Firefox OS や Chrome OS では、アプリの開発者に対して CSP の適用を必須化することにより、DOM Based XSS の低減を実現している。<span class="footnote">[<a id="_footnoteref_88" class="footnote" href="#_footnote_88" title="View footnote.">88</a>]</span> <span class="footnote">[<a id="_footnoteref_89" class="footnote" href="#_footnote_89" title="View footnote.">89</a>]</span>
-また、Firefox OS では、HTML や JavaScript のリソースをネットワークから取得する際に、接続先のドメインを制限することに加え、HTTPS 接続と HPKP による証明書ピンニングを必須化することにより、中間者攻撃のリスクを軽減している。<span class="footnote">[<a id="_footnoteref_90" class="footnote" href="#_footnote_90" title="View footnote.">90</a>]</span>
+<p>例えば、Firefox OS や Chrome OS では、アプリの開発者に対して CSP の適用を必須化することにより、DOM Based XSS の低減を実現している。<sup class="footnote">[<a id="_footnoteref_90" class="footnote" href="#_footnotedef_90" title="View footnote.">90</a>]</sup> <sup class="footnote">[<a id="_footnoteref_91" class="footnote" href="#_footnotedef_91" title="View footnote.">91</a>]</sup>
+また、Firefox OS では、HTML や JavaScript のリソースをネットワークから取得する際に、接続先のドメインを制限することに加え、HTTPS 接続と HPKP による証明書ピンニングを必須化することにより、中間者攻撃のリスクを軽減している。<sup class="footnote">[<a id="_footnoteref_92" class="footnote" href="#_footnotedef_92" title="View footnote.">92</a>]</sup>
 このような仕組みが Cordova に導入され、より安全なアプリ開発が可能になることが期待される。</p>
 </div>
 </div>
@@ -2354,7 +2400,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 </div>
 <div class="paragraph">
 <div class="title">WKWebViewの調査</div>
-<p>iOS版の Cordovaは、将来的に UIWebView から WKWebView に移行される予定である。<span class="footnote">[<a id="_footnoteref_91" class="footnote" href="#_footnote_91" title="View footnote.">91</a>]</span> WKWebView には <a href="http://devstreaming.apple.com/videos/wwdc/2014/206xxdiurnffagr/206/206_introducing_the_modern_webkit_api.pdf">Script Messages</a> をはじめとする新たな機能が搭載されており、それらに対する安全性の検証が必要となる。また、iOS7 までの UIWebView では、file スキームで動作する HTML に XSS が存在する場合、アプリのサンドボックスのリソースを盗まれる恐れがあったことから、WKWebView において file スキームのHTMLが持つ権限やその指定方法についても調査が求められる。</p>
+<p>iOS版の Cordovaは、将来的に UIWebView から WKWebView に移行される予定である。<sup class="footnote">[<a id="_footnoteref_93" class="footnote" href="#_footnotedef_93" title="View footnote.">93</a>]</sup> WKWebView には <a href="http://devstreaming.apple.com/videos/wwdc/2014/206xxdiurnffagr/206/206_introducing_the_modern_webkit_api.pdf">Script Messages</a> をはじめとする新たな機能が搭載されており、それらに対する安全性の検証が必要となる。また、iOS7 までの UIWebView では、file スキームで動作する HTML に XSS が存在する場合、アプリのサンドボックスのリソースを盗まれる恐れがあったことから、WKWebView において file スキームのHTMLが持つ権限やその指定方法についても調査が求められる。</p>
 </div>
 <div class="paragraph">
 <div class="title">iOS におけるセキュアコーディングに関するノウハウ</div>
@@ -2366,7 +2412,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 </div>
 <div class="paragraph">
 <div class="title">HTML5 セキュアコーディングガイドの継続的な更新</div>
-<p>X.X節では、HTML Imports の不正利用により XSS が発生する可能性について触れた。こうした点について記載されているセキュアコーディングガイドは残念ながら見当たらない。近年のブラウザには、JavaScript で暗号処理を行うことを目的として <a href="http://www.w3.org/TR/WebCryptoAPI/">Web Cryptography API</a> が実装されているが、APIの安全な使い方<span class="footnote">[<a id="_footnoteref_92" class="footnote" href="#_footnote_92" title="View footnote.">92</a>]</span>を解説したガイドは存在しない。昨今のブラウザの実装を元に、セキュアコーディングガイドを継続的に更新していく仕組み作りが必要である。</p>
+<p>7.2.2節では、HTML Imports の不正利用により XSS が発生する可能性について触れた。こうした点について記載されているセキュアコーディングガイドは残念ながら見当たらない。近年のブラウザには、JavaScript で暗号処理を行うことを目的として <a href="http://www.w3.org/TR/WebCryptoAPI/">Web Cryptography API</a> が実装されているが、APIの安全な使い方<sup class="footnote">[<a id="_footnoteref_94" class="footnote" href="#_footnotedef_94" title="View footnote.">94</a>]</sup>を解説したガイドは存在しない。昨今のブラウザの実装を元に、セキュアコーディングガイドを継続的に更新していく仕組み作りが必要である。</p>
 </div>
 <div class="paragraph">
 <div class="title">Cordovaプラグインの安全な作り方、使い方に関するノウハウの蓄積</div>
@@ -2375,14 +2421,12 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_appendix">Appendix A: Appendix</h2>
+<h2 id="_android_版_cordova_の既知の脆弱性">Appendix A: Android 版 Cordova の既知の脆弱性</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_android_版_cordova_の既知の脆弱性">A.1. Android 版 Cordova の既知の脆弱性</h3>
-<div class="sect3">
-<h4 id="_ホワイトリスト保護メカニズムを回避される脆弱性_cve_2012_6637">A.1.1. ホワイトリスト保護メカニズムを回避される脆弱性 (CVE-2012-6637)</h4>
+<h3 id="_ホワイトリスト保護メカニズムを回避される脆弱性_cve_2012_6637">A.1. ホワイトリスト保護メカニズムを回避される脆弱性 (CVE-2012-6637)</h3>
 <div class="paragraph">
-<p>脆弱性の原因は、ホワイトリストに基づくアクセス先のオリジンの検証が、全文一致ではなく前方一致で行われていた点にあった。オリジンの検証は次のような正規表現を使って行われていた。<span class="footnote">[<a id="_footnoteref_93" class="footnote" href="#_footnote_93" title="View footnote.">93</a>]</span></p>
+<p>脆弱性の原因は、ホワイトリストに基づくアクセス先のオリジンの検証が、全文一致ではなく前方一致で行われていた点にあった。オリジンの検証は次のような正規表現を使って行われていた。<sup class="footnote">[<a id="_footnoteref_95" class="footnote" href="#_footnotedef_95" title="View footnote.">95</a>]</sup></p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -2393,11 +2437,11 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 <p>ホワイトリストで許可されたオリジンを先頭に含む任意の URL が開かれてしまう。たとえば、ホワイトリストで "trusted.com" に対するアクセスが許可されている場合、"trusted.com" を前方に含む "trusted.com.evil.com" が許可されてしまう。</p>
 </div>
 <div class="paragraph">
-<p>この脆弱性は Cordova 3.1.0 で修正されている。URL をスキーム、ホスト名、ポート番号、パス名といった要素に分解し、それぞれの要素をホワイトリストと比較するようホワイトリストの判定ロジックが変更されている。<span class="footnote">[<a id="_footnoteref_94" class="footnote" href="#_footnote_94" title="View footnote.">94</a>]</span></p>
+<p>この脆弱性は Cordova 3.1.0 で修正されている。URL をスキーム、ホスト名、ポート番号、パス名といった要素に分解し、それぞれの要素をホワイトリストと比較するようホワイトリストの判定ロジックが変更されている。<sup class="footnote">[<a id="_footnoteref_96" class="footnote" href="#_footnotedef_96" title="View footnote.">96</a>]</sup></p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1881">A.1.2. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1881)</h4>
+<div class="sect2">
+<h3 id="_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1881">A.2. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1881)</h3>
 <div class="paragraph">
 <p>JVN iPedia には脆弱性の概要が次のように書かれている。</p>
 </div>
@@ -2410,7 +2454,7 @@ Certifiate pinning in Android 4.2&#8201;&#8212;&#8201;First off, at the time of 
 </div>
 </div>
 <div class="paragraph">
-<p>CVE-2014-1883 の脆弱性を悪用することでホワイトリストの制限を回避してiframe内で開かれた信頼できないリソースが、イベントベースのブリッジ (PROMPT) のホワイトリストの制限を受けずに、ネイティブ側の初期化完了タイミングを知ることのできる点が脆弱性として指摘されていると考えられる。<span class="footnote">[<a id="_footnoteref_95" class="footnote" href="#_footnote_95" title="View footnote.">95</a>]</span></p>
+<p>CVE-2014-1883 の脆弱性を悪用することでホワイトリストの制限を回避してiframe内で開かれた信頼できないリソースが、イベントベースのブリッジ (PROMPT) のホワイトリストの制限を受けずに、ネイティブ側の初期化完了タイミングを知ることのできる点が脆弱性として指摘されていると考えられる。<sup class="footnote">[<a id="_footnoteref_97" class="footnote" href="#_footnotedef_97" title="View footnote.">97</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Cordova のブリッジは、ネイティブ側の初期化完了を示す "deviceready" イベントを受けた後、JavaScript から利用可能になる。
@@ -2423,8 +2467,8 @@ iframe 内で開かれた信頼できないリソースは、deviceready イベ�
 <p>2015年2月現在、この脆弱性は修正されていないが、CVE-2014-1882を修正することにより、信頼されないリソースにブリッジが悪用されることは阻止される。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1882">A.1.3. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1882)</h4>
+<div class="sect2">
+<h3 id="_イベントベースのブリッジのデバイスリソース制限を回避される脆弱性_cve_2014_1882">A.3. イベントベースのブリッジのデバイスリソース制限を回避される脆弱性 (CVE-2014-1882)</h3>
 <div class="paragraph">
 <p>Webアプリ側からブリッジが呼び出されるときに行われる、ホワイトリストに基づくアクセス元の検証を回避して、信頼されないリソースからブリッジを利用できる脆弱性である。</p>
 </div>
@@ -2474,8 +2518,8 @@ iframe 内で開かれた信頼できないリソースは、deviceready イベ�
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_デバイスリソース制限を回避される脆弱性_cve_2014_1883">A.1.4. デバイスリソース制限を回避される脆弱性 (CVE-2014-1883)</h4>
+<div class="sect2">
+<h3 id="_デバイスリソース制限を回避される脆弱性_cve_2014_1883">A.4. デバイスリソース制限を回避される脆弱性 (CVE-2014-1883)</h3>
 <div class="paragraph">
 <p>ホワイトリストによるリソースの読込み制限を回避して、iframe や XMLHttpRequest により、信頼されないリソースを参照できる脆弱性である。</p>
 </div>
@@ -2483,13 +2527,13 @@ iframe 内で開かれた信頼できないリソースは、deviceready イベ�
 <p>脆弱性が作り込まれた原因は、Cordova 2.6.0 未満において、リソースの読み込み制限を WebViewClient#shouldOverrideUrlLoading で実装していたため、iframe や XMLHttpRequest によるネットワークアクセスを検知できなかったことにある。</p>
 </div>
 <div class="paragraph">
-<p>バージョン2.6.0 では、WebViewClient#shouldInterceptRequest を用いて検証を行うよう修正されているが<span class="footnote">[<a id="_footnoteref_96" class="footnote" href="#_footnote_96" title="View footnote.">96</a>]</span>、 WebViewClient#shouldInterceptRequest は、Android3.0 (API11) で導入されたため、Android 2.x 系の端末では対策が有効ではない。</p>
+<p>バージョン2.6.0 では、WebViewClient#shouldInterceptRequest を用いて検証を行うよう修正されているが<sup class="footnote">[<a id="_footnoteref_98" class="footnote" href="#_footnotedef_98" title="View footnote.">98</a>]</sup>、 WebViewClient#shouldInterceptRequest は、Android3.0 (API11) で導入されたため、Android 2.x 系の端末では対策が有効ではない。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_スタートページを変更される脆弱性_cve_2014_3500">A.1.5. スタートページを変更される脆弱性 (CVE-2014-3500)</h4>
+<div class="sect2">
+<h3 id="_スタートページを変更される脆弱性_cve_2014_3500">A.5. スタートページを変更される脆弱性 (CVE-2014-3500)</h3>
 <div class="paragraph">
-<p>他のアプリから javascript URL を含む Intent を送ることで、任意の JavaScript を実行させることのできる脆弱性(クロスアプリケーションスクリプティング(XAS)脆弱性)である。<span class="footnote">[<a id="_footnoteref_97" class="footnote" href="#_footnote_97" title="View footnote.">97</a>]</span></p>
+<p>他のアプリから javascript URL を含む Intent を送ることで、任意の JavaScript を実行させることのできる脆弱性(クロスアプリケーションスクリプティング(XAS)脆弱性)である。<sup class="footnote">[<a id="_footnoteref_99" class="footnote" href="#_footnotedef_99" title="View footnote.">99</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>脆弱性が作り込まれた原因は、バージョン 3.5.1 未満の CordovaWebView に、Activity の起動に使われた Intent に含まれる "url"、または "errorurl" というキーの値を開く処理が含まれていたためである。この脆弱性を報告した IBM の技術者は以下のように説明している。</p>
@@ -2506,7 +2550,7 @@ First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String 
 <p>外部のアプリまたはブラウザから Cordova を利用するアプリに対して、javascript スキームの Intent を送ることにより、WebView上で任意の JavaScript を実行させることができる。</p>
 </div>
 <div class="paragraph">
-<p>2014年3月、ブラウザアプリで開かれたWebコンテンツから他のアプリに対して明示的 Intent を送る攻撃手法が、三井物産セキュアディレクション(MBSD)が公開するホワイトペーパーで明らかにされている。<span class="footnote">[<a id="_footnoteref_98" class="footnote" href="#_footnote_98" title="View footnote.">98</a>]</span></p>
+<p>2014年3月、ブラウザアプリで開かれたWebコンテンツから他のアプリに対して明示的 Intent を送る攻撃手法が、三井物産セキュアディレクション(MBSD)が公開するホワイトペーパーで明らかにされている。<sup class="footnote">[<a id="_footnoteref_100" class="footnote" href="#_footnotedef_100" title="View footnote.">100</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>ホワイトペーパーの概要は次の通りである。</p>
@@ -2530,18 +2574,18 @@ First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String 
 <div class="ulist">
 <ul>
 <li>
-<p>Intentの "url" キーを参照する処理を削除 <span class="footnote">[<a id="_footnoteref_99" class="footnote" href="#_footnote_99" title="View footnote.">99</a>]</span></p>
+<p>Intentの "url" キーを参照する処理を削除 <sup class="footnote">[<a id="_footnoteref_101" class="footnote" href="#_footnotedef_101" title="View footnote.">101</a>]</sup></p>
 </li>
 <li>
-<p>Intentの "errorurl" キーを参照する処理を、config.xmlの "errorurl" を参照する処理に変更 <span class="footnote">[<a id="_footnoteref_100" class="footnote" href="#_footnote_100" title="View footnote.">100</a>]</span></p>
+<p>Intentの "errorurl" キーを参照する処理を、config.xmlの "errorurl" を参照する処理に変更 <sup class="footnote">[<a id="_footnoteref_102" class="footnote" href="#_footnotedef_102" title="View footnote.">102</a>]</sup></p>
 </li>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_http_のホワイトリストを回避される脆弱性_cve_2014_3501">A.1.6. HTTP のホワイトリストを回避される脆弱性 (CVE-2014-3501)</h4>
+<div class="sect2">
+<h3 id="_http_のホワイトリストを回避される脆弱性_cve_2014_3501">A.6. HTTP のホワイトリストを回避される脆弱性 (CVE-2014-3501)</h3>
 <div class="paragraph">
-<p>ホワイトリストによるリソース読込みの制限を回避して、WebSocket により、信頼されないリソースを参照できる脆弱性である。<span class="footnote">[<a id="_footnoteref_101" class="footnote" href="#_footnote_101" title="View footnote.">101</a>]</span></p>
+<p>ホワイトリストによるリソース読込みの制限を回避して、WebSocket により、信頼されないリソースを参照できる脆弱性である。<sup class="footnote">[<a id="_footnoteref_103" class="footnote" href="#_footnotedef_103" title="View footnote.">103</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>原因は、Android の WebViewClient#shouldInterceptRequest API が WebSocket の接続リクエストを捕捉できないことにある。Cordova は この API を用いて、WebView 上で HTTP リクエストが発生するたびに、ホワイトリストに基づいてリソース読み込みの制限をかけている。この API では WebSocket の接続リクエストを捕捉できないため、Cordova のホワイトリストに基づく制限が機能しない。</p>
@@ -2550,34 +2594,34 @@ First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String 
 <p>この API は、Android の制限であり、Android 5.0.1時点でもまだ対策されていないことを確認した。</p>
 </div>
 <div class="paragraph">
-<p>バージョン3.5.1未満で発見された XAS脆弱性 (CVE-2014-3500) と組み合わせることで、WebView に注入された悪意のある JavaScriptが、ホワイトリストを回避し、対象のアプリが持つ機密データを WebSocket を通じて、外部のサーバへ持ち出すことができる可能性が指摘されている。<span class="footnote">[<a id="_footnoteref_102" class="footnote" href="#_footnote_102" title="View footnote.">102</a>]</span></p>
+<p>バージョン3.5.1未満で発見された XAS脆弱性 (CVE-2014-3500) と組み合わせることで、WebView に注入された悪意のある JavaScriptが、ホワイトリストを回避し、対象のアプリが持つ機密データを WebSocket を通じて、外部のサーバへ持ち出すことができる可能性が指摘されている。<sup class="footnote">[<a id="_footnoteref_104" class="footnote" href="#_footnotedef_104" title="View footnote.">104</a>]</sup></p>
 </div>
 <div class="paragraph">
-<p>報告者は、この脆弱性の対策として、アプリ開発者がCSPを用いてWebSocketの通信を制限することを提案している。<span class="footnote">[<a id="_footnoteref_103" class="footnote" href="#_footnote_103" title="View footnote.">103</a>]</span></p>
+<p>報告者は、この脆弱性の対策として、アプリ開発者がCSPを用いてWebSocketの通信を制限することを提案している。<sup class="footnote">[<a id="_footnoteref_105" class="footnote" href="#_footnotedef_105" title="View footnote.">105</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Android 4.4以降の WebView には <a href="http://www.w3.org/TR/CSP/#connect-src">Content Security Policy</a> が実装されているため、CSP の <a href="http://www.w3.org/TR/CSP/#directive-connect-src">connect-src</a> ディレクティブにより、WebSocket の接続先を制限することができる。ただし、connect-src を指定した場合、WebSocket だけでなく、XMLHttpRequest や EventSource(Server Sent Event) などの非同期通信の接続先も制限される。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_任意のアプリケーションを起動される脆弱性_cve_2014_3502">A.1.7. 任意のアプリケーションを起動される脆弱性 (CVE-2014-3502)</h4>
+<div class="sect2">
+<h3 id="_任意のアプリケーションを起動される脆弱性_cve_2014_3502">A.7. 任意のアプリケーションを起動される脆弱性 (CVE-2014-3502)</h3>
 <div class="paragraph">
-<p>CordovaではハンドルできないスキームのURLに対する遷移を利用して、アプリ内の情報を他のアプリに持ち出すことのできる脆弱性である。<span class="footnote">[<a id="_footnoteref_104" class="footnote" href="#_footnote_104" title="View footnote.">104</a>]</span></p>
+<p>CordovaではハンドルできないスキームのURLに対する遷移を利用して、アプリ内の情報を他のアプリに持ち出すことのできる脆弱性である。<sup class="footnote">[<a id="_footnoteref_106" class="footnote" href="#_footnotedef_106" title="View footnote.">106</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>バージョン3.6.0 未満では、Cordova が処理できない URL スキームへのリンクを検出した場合、標準のビューアに指定されている外部のアプリが起動され当該の URL を開いてしまう。たとえば、mailto: や geo: スキームのURLにアクセスした場合、外部のメールアプリや地図アプリが開かれる。</p>
 </div>
 <div class="paragraph">
-<p>バージョン3.5.1未満で発見されたXAS脆弱性 (CVE-2014-3500) と組み合わせることにより、WebView に注入された悪意のあるJavaScript が、特定のスキームを含む暗黙的 Intent を受け取る他のアプリを経由して、Cordova アプリの機密情報を盗み出すことができる可能性が指摘されている。<span class="footnote">[<a id="_footnoteref_105" class="footnote" href="#_footnote_105" title="View footnote.">105</a>]</span></p>
+<p>バージョン3.5.1未満で発見されたXAS脆弱性 (CVE-2014-3500) と組み合わせることにより、WebView に注入された悪意のあるJavaScript が、特定のスキームを含む暗黙的 Intent を受け取る他のアプリを経由して、Cordova アプリの機密情報を盗み出すことができる可能性が指摘されている。<sup class="footnote">[<a id="_footnoteref_107" class="footnote" href="#_footnotedef_107" title="View footnote.">107</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>バージョン3.6.0では、 <a href="http://cordova.apache.org/docs/en/4.0.0/guide_appdev_whitelist_index.md.html">External Application Whitelist</a> と呼ばれる新しいホワイトリストがサポートされ、Cordova が処理できないURLスキームを外部アプリで開くかどうかを制御できるようになった。初期状態では、Cordova が処理できない全ての URL スキームのリンクが無効化されるが、開発者が External Application Whitelist の設定を緩和した場合、本脆弱性と同じ現象が発生する可能性はある。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_外部から_preferences_を悪用可能な脆弱性_cve_2015_1835">A.1.8. 外部から preferences を悪用可能な脆弱性 (CVE-2015-1835)</h4>
+<div class="sect2">
+<h3 id="_外部から_preferences_を悪用可能な脆弱性_cve_2015_1835">A.8. 外部から preferences を悪用可能な脆弱性 (CVE-2015-1835)</h3>
 <div class="paragraph">
-<p>Trend Micro の研究者 Seven Shen が発見した脆弱性。　<span class="footnote">[<a id="_footnoteref_106" class="footnote" href="#_footnote_106" title="View footnote.">106</a>]</span></p>
+<p>Trend Micro の研究者 Seven Shen が発見した脆弱性。　<sup class="footnote">[<a id="_footnoteref_108" class="footnote" href="#_footnotedef_108" title="View footnote.">108</a>]</sup></p>
 </div>
 <div class="paragraph">
 <p>Cordova においては、preferences は Cordova フレームワークの config.xml で明示的に設定されるか、明示的に設定されず初期値が利用されるが、多くのアプリ開発者は明示的な設定を行っていない。アプリは intent bundle を読み込み、CordovaActivitiy における初期化の過程で intent bundle を読み込み、preference にコピーするが、config.xml で値が設定されていない場合、preference の値は bundle からコピーされる。</p>
@@ -2586,8 +2630,7 @@ First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String 
 <p>攻撃者は悪意ある intent bundle を CordovaActivity に注入することで、アプリの preferece を書き換えることでアプリの動作を改変したり、アプリを終了させることが可能。</p>
 </div>
 <div class="paragraph">
-<p>Android　版 Cordova の 4.0.1 までの全てのバージョンが影響を受ける。4.0.2 および 3.7.2 で修正されている。<span class="footnote">[<a id="_footnoteref_107" class="footnote" href="#_footnote_107" title="View footnote.">107</a>]</span></p>
-</div>
+<p>Android 版 Cordova の 4.0.1 までの全てのバージョンが影響を受ける。4.0.2 および 3.7.2 で修正されている。<sup class="footnote">[<a id="_footnoteref_109" class="footnote" href="#_footnotedef_109" title="View footnote.">109</a>]</sup></p>
 </div>
 </div>
 </div>
@@ -2595,332 +2638,338 @@ First, the CordovaWebView.loadUrl(String url) and CordovaWebView.loadUrl(String 
 </div>
 <div id="footnotes">
 <hr>
-<div class="footnote" id="_footnote_1">
+<div class="footnote" id="_footnotedef_1">
 <a href="#_footnoteref_1">1</a>. <a href="http://www.appbrain.com/stats/libraries/details/phonegap/phonegap-apache-cordova" class="bare">http://www.appbrain.com/stats/libraries/details/phonegap/phonegap-apache-cordova</a>
 </div>
-<div class="footnote" id="_footnote_2">
+<div class="footnote" id="_footnotedef_2">
 <a href="#_footnoteref_2">2</a>. IBM, Security Intelligence, Apache Cordova Vulnerability Discovered: 10% of Android Banking Apps Potentially Vulnerable (<a href="http://securityintelligence.com/apache-cordova-phonegap-vulnerability-android-banking-apps/" class="bare">http://securityintelligence.com/apache-cordova-phonegap-vulnerability-android-banking-apps/</a>)
 </div>
-<div class="footnote" id="_footnote_3">
+<div class="footnote" id="_footnotedef_3">
 <a href="#_footnoteref_3">3</a>. M. Georgiev, S. Jana, and V. Shmatikov. "Breaking and fixing origin-based access control in hybrid web/mobile application frameworks." In Proceeding of the Network and Distributed System Security Symposium (NDSS), 2014.
 </div>
-<div class="footnote" id="_footnote_4">
+<div class="footnote" id="_footnotedef_4">
 <a href="#_footnoteref_4">4</a>. X. Jin, X. Hu, K. Ying, W. Du, H. Yin and G. N. Peri. "Code Injection Attacks on HTML5-based Mobile Apps: Characterization, Detection and Mitigation" In Proceedings of the 2014 ACM SIGSAC Conference on Computer and Communications Security. ACM, 2014.
 </div>
-<div class="footnote" id="_footnote_5">
+<div class="footnote" id="_footnotedef_5">
 <a href="#_footnoteref_5">5</a>. <a href="http://cordova.apache.org/#about" class="bare">http://cordova.apache.org/#about</a>
 </div>
-<div class="footnote" id="_footnote_6">
+<div class="footnote" id="_footnotedef_6">
 <a href="#_footnoteref_6">6</a>. <a href="http://web.archive.org/web/20080813224412/http://www.phonegap.com/" class="bare">http://web.archive.org/web/20080813224412/http://www.phonegap.com/</a>
 </div>
-<div class="footnote" id="_footnote_7">
+<div class="footnote" id="_footnotedef_7">
 <a href="#_footnoteref_7">7</a>. <a href="http://web.archive.org/web/20110121103643/http://www.phonegap.com/faq" class="bare">http://web.archive.org/web/20110121103643/http://www.phonegap.com/faq</a>
 </div>
-<div class="footnote" id="_footnote_8">
+<div class="footnote" id="_footnotedef_8">
 <a href="#_footnoteref_8">8</a>. <a href="http://web.archive.org/web/20111114065509/http://phonegap.com/about" class="bare">http://web.archive.org/web/20111114065509/http://phonegap.com/about</a>
 </div>
-<div class="footnote" id="_footnote_9">
+<div class="footnote" id="_footnotedef_9">
 <a href="#_footnoteref_9">9</a>. <a href="http://www.adobe.com/aboutadobe/pressroom/pressreleases/201110/AdobeAcquiresNitobi.html" class="bare">http://www.adobe.com/aboutadobe/pressroom/pressreleases/201110/AdobeAcquiresNitobi.html</a>
 </div>
-<div class="footnote" id="_footnote_10">
+<div class="footnote" id="_footnotedef_10">
 <a href="#_footnoteref_10">10</a>. <a href="http://phonegap.com/about/faq/" class="bare">http://phonegap.com/about/faq/</a>
 </div>
-<div class="footnote" id="_footnote_11">
+<div class="footnote" id="_footnotedef_11">
 <a href="#_footnoteref_11">11</a>. <a href="http://assignments.uspto.gov/assignments/q?db=tm&amp;qt=sno&amp;reel=&amp;frame=&amp;sno=77786996" class="bare">http://assignments.uspto.gov/assignments/q?db=tm&amp;qt=sno&amp;reel=&amp;frame=&amp;sno=77786996</a>
 </div>
-<div class="footnote" id="_footnote_12">
+<div class="footnote" id="_footnotedef_12">
 <a href="#_footnoteref_12">12</a>. <a href="http://incubator.apache.org/projects/cordova.html" class="bare">http://incubator.apache.org/projects/cordova.html</a>
 </div>
-<div class="footnote" id="_footnote_13">
+<div class="footnote" id="_footnotedef_13">
 <a href="#_footnoteref_13">13</a>. <a href="https://cordova.apache.org/announcements/2015/04/21/plugins-release-and-move-to-npm.html" class="bare">https://cordova.apache.org/announcements/2015/04/21/plugins-release-and-move-to-npm.html</a>
 </div>
-<div class="footnote" id="_footnote_14">
+<div class="footnote" id="_footnotedef_14">
 <a href="#_footnoteref_14">14</a>. PROMPTとJS_OBJECTという2種類のブリッジがjsToNativeModesとして定義されている (<a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L875" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L875</a>)
 </div>
-<div class="footnote" id="_footnote_15">
+<div class="footnote" id="_footnotedef_15">
 <a href="#_footnoteref_15">15</a>. ブリッジの機能を提供するJavaのインスタンスをaddJavascriptInterfaceでWebViewに登録している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaWebView.java#L305" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaWebView.java#L305</a>)
 </div>
-<div class="footnote" id="_footnote_16">
+<div class="footnote" id="_footnotedef_16">
 <a href="#_footnoteref_16">16</a>. JavaScript 側では、window.prompt メソッドを通じてネイティブ側の機能にアクセスしている ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L353" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L353</a>)
 </div>
-<div class="footnote" id="_footnote_17">
+<div class="footnote" id="_footnotedef_17">
 <a href="#_footnoteref_17">17</a>. Java 側では、Android の WebChromeClient#onJsPrompt を用いて window.prompt の実行をフックしている ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaChromeClient.java#L192" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/CordovaChromeClient.java#L192</a>)
 </div>
-<div class="footnote" id="_footnote_18">
+<div class="footnote" id="_footnotedef_18">
 <a href="#_footnoteref_18">18</a>. "Removing addJavascriptInterface support from all Android versions lower than 4.2 due to security vulnerability" ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/RELEASENOTES.md" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/RELEASENOTES.md</a>)
 </div>
-<div class="footnote" id="_footnote_19">
+<div class="footnote" id="_footnotedef_19">
 <a href="#_footnoteref_19">19</a>. POLLING、LOADURL、ONLINEEVENT、PRIVATE_API の4種類のブリッジが nativeToJsModes として定義されている ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L878" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L878</a>)
 </div>
-<div class="footnote" id="_footnote_20">
+<div class="footnote" id="_footnotedef_20">
 <a href="#_footnoteref_20">20</a>. POLLING ブリッジは、window.setTimeout を使って定期的にネイティブ側からのメッセージをポーリングで処理している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L1012" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L1012</a>)
 </div>
-<div class="footnote" id="_footnote_21">
+<div class="footnote" id="_footnotedef_21">
 <a href="#_footnoteref_21">21</a>. pollOnce は 6 のポーリング処理の中で呼び出される関数。retrieveJsMessages でネイティブからメッセージを受け取り、processMessagesで処理している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L949" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L949</a>)
 </div>
-<div class="footnote" id="_footnote_22">
+<div class="footnote" id="_footnotedef_22">
 <a href="#_footnoteref_22">22</a>. javascript: URL を WebView#loadUrl に渡すことにより、HTML文書にネイティブ側からのメッセージをJavaScriptとして注入している
 </div>
-<div class="footnote" id="_footnote_23">
+<div class="footnote" id="_footnotedef_23">
 <a href="#_footnoteref_23">23</a>. WebView#setNetworkAvailable をトグルすることにより、ネイティブ側でメッセージを送る準備ができたことをJavaScript側に通知している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L320" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L320</a>)
 </div>
-<div class="footnote" id="_footnote_24">
+<div class="footnote" id="_footnotedef_24">
 <a href="#_footnoteref_24">24</a>. リフレクションにより、 WebViewCore の sendMessage という隠しメソッドを呼び出して、JavaScript 側にメッセージを送信している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L379" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/src/org/apache/cordova/NativeToJsMessageQueue.java#L379</a>)
 </div>
-<div class="footnote" id="_footnote_25">
+<div class="footnote" id="_footnotedef_25">
 <a href="#_footnoteref_25">25</a>. ONLINE_EVENT が nativeToJsBridgeMode の初期値に指定されている。ブリッジはsetNativeToJsBridgeMode関数で変更できるが、Cordovaのコードでこの関数を実行している箇所はない ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L894" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L894</a>)
 </div>
-<div class="footnote" id="_footnote_26">
+<div class="footnote" id="_footnotedef_26">
 <a href="#_footnoteref_26">26</a>. online イベントのハンドラに pollOnceFromOnlineEvent 関数が指定されている。この関数は、内部で JsToNativeBridge を利用してネイティブ側のメッセージを読み出している ( <a href="https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L974" class="bare">https://github.com/apache/cordova-android/blob/3.6.x/framework/assets/www/cordova.js#L974</a>)
 </div>
-<div class="footnote" id="_footnote_27">
+<div class="footnote" id="_footnotedef_27">
 <a href="#_footnoteref_27">27</a>. jsToNativeModes として、IFRAME、XHR、WKWEBVIEWBINDING の3種類がある。このうち WKWEBVIEWBINDING はまだ正式にサポートされていない ( <a href="https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L823" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L823</a>)
 </div>
-<div class="footnote" id="_footnote_28">
+<div class="footnote" id="_footnotedef_28">
 <a href="#_footnoteref_28">28</a>. "In Cordova 2.1.0 for iOS, we changed the default bridge mode from using an iframe to using xhr (XmlHttpRequest). This has proved to fix some UI issues and possibly fix crash issues.　In iOS 4.2.1 however, Cordova defaults back to iframe mode because of a bug" (<a href="https://github.com/apache/cordova-ios/blob/3.7.x/guides/Changing%20the%20JavaScript%20to%20Native%20Bridge%20Mode.md" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/guides/Changing%20the%20JavaScript%20to%20Native%20Bridge%20Mode.md</a>)
 </div>
-<div class="footnote" id="_footnote_29">
+<div class="footnote" id="_footnotedef_29">
 <a href="#_footnoteref_29">29</a>. "IFRAME_NAV is the fastest." "とのコメントから IFRAME ブリッジが性能面で有利であると考えられる (<a href="https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L821" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/cordova.js#L821</a>)
 </div>
-<div class="footnote" id="_footnote_30">
-<a href="#_footnoteref_30">30</a>. 　　https://cordova.apache.org/docs/en/edge/guide_appdev_whitelist_index.md.html#Whitelist%20Guide
+<div class="footnote" id="_footnotedef_30">
+<a href="#_footnoteref_30">30</a>. 　　<a href="https://cordova.apache.org/docs/en/edge/guide_appdev_whitelist_index.md.html#Whitelist%20Guide" class="bare">https://cordova.apache.org/docs/en/edge/guide_appdev_whitelist_index.md.html#Whitelist%20Guide</a>
 </div>
-<div class="footnote" id="_footnote_31">
+<div class="footnote" id="_footnotedef_31">
 <a href="#_footnoteref_31">31</a>. <a href="https://github.com/apache/cordova-plugin-whitelist" class="bare">https://github.com/apache/cordova-plugin-whitelist</a>
 </div>
-<div class="footnote" id="_footnote_32">
+<div class="footnote" id="_footnotedef_32">
 <a href="#_footnoteref_32">32</a>. <a href="https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/README.md" class="bare">https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/README.md</a>
 </div>
-<div class="footnote" id="_footnote_33">
+<div class="footnote" id="_footnotedef_33">
 <a href="#_footnoteref_33">33</a>. <a href="https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/whitelist.js#L21" class="bare">https://github.com/apache/cordova-plugin-whitelist/blob/r1.1.0/whitelist.js#L21</a>
 </div>
-<div class="footnote" id="_footnote_34">
+<div class="footnote" id="_footnotedef_34">
 <a href="#_footnoteref_34">34</a>. "Domain whitelisting does not work on Android API 10 and below, and WP8 for iframes and XMLHttpRequest. This means an attacker can load any domain in an iframe and any script on that page within the iframe can directly access Cordova JavaScript objects and the corresponding native Java objects." (<a href="http://cordova.apache.org/docs/en/4.0.0/guide_appdev_security_index.md.html" class="bare">http://cordova.apache.org/docs/en/4.0.0/guide_appdev_security_index.md.html</a>)
 </div>
-<div class="footnote" id="_footnote_35">
+<div class="footnote" id="_footnotedef_35">
 <a href="#_footnoteref_35">35</a>. "Fri May 09 15:15:10 2014 +0530&#8201;&#8212;&#8201;Update libpng from 1.6.3 to 1.6.10" 2015年2月20日現在、これ以降にlibpngのバージョンアップを示すコミットは含まれないことから、64-bit対応のAndroid端末において、CVE-2014-9495の影響を受ける可能性がある (<a href="https://android.googlesource.com/platform/external/libpng/%2B/b478e66e7c2621eef5f465e4629ce642db00716b" class="bare">https://android.googlesource.com/platform/external/libpng/%2B/b478e66e7c2621eef5f465e4629ce642db00716b</a>)
 </div>
-<div class="footnote" id="_footnote_36">
+<div class="footnote" id="_footnotedef_36">
 <a href="#_footnoteref_36">36</a>. <a href="https://source.android.com/devices/tech/security/enhancements/enhancements42.html" class="bare">https://source.android.com/devices/tech/security/enhancements/enhancements42.html</a>
 </div>
-<div class="footnote" id="_footnote_37">
+<div class="footnote" id="_footnotedef_37">
 <a href="#_footnoteref_37">37</a>. <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4710" class="bare">http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4710</a>
 </div>
-<div class="footnote" id="_footnote_38">
+<div class="footnote" id="_footnotedef_38">
 <a href="#_footnoteref_38">38</a>. <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-1939" class="bare">http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-1939</a>
 </div>
-<div class="footnote" id="_footnote_39">
+<div class="footnote" id="_footnotedef_39">
 <a href="#_footnoteref_39">39</a>. <a href="https://android.googlesource.com/platform/frameworks/base.git/%2B/d773ca8ff2a7a5be94d7f2aaa8ff5ef5dac501a8%5E%21/#F0" class="bare">https://android.googlesource.com/platform/frameworks/base.git/%2B/d773ca8ff2a7a5be94d7f2aaa8ff5ef5dac501a8%5E%21/#F0</a>
 </div>
-<div class="footnote" id="_footnote_40">
+<div class="footnote" id="_footnotedef_40">
 <a href="#_footnoteref_40">40</a>. <a href="https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c" class="bare">https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c</a>
 </div>
-<div class="footnote" id="_footnote_41">
+<div class="footnote" id="_footnotedef_41">
 <a href="#_footnoteref_41">41</a>. <a href="https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c" class="bare">https://android.googlesource.com/platform/frameworks/base.git/%2B/94740e6c333a109be7516abbd17dd418f23b4f0c</a>
 </div>
-<div class="footnote" id="_footnote_42">
+<div class="footnote" id="_footnotedef_42">
 <a href="#_footnoteref_42">42</a>. <a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L314" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L314</a>
 </div>
-<div class="footnote" id="_footnote_43">
+<div class="footnote" id="_footnotedef_43">
 <a href="#_footnoteref_43">43</a>. <a href="http://cordova.apache.org/announcements/2015/04/15/cordova-android-4.0.0.html" class="bare">http://cordova.apache.org/announcements/2015/04/15/cordova-android-4.0.0.html</a>
 </div>
-<div class="footnote" id="_footnote_44">
+<div class="footnote" id="_footnotedef_44">
 <a href="#_footnoteref_44">44</a>. ARM と x86 の両アーキテクチャに対応したCrosswalk をアプリに組み込んだ場合、インストール後のパッケージサイズは 58MB 程度になる (<a href="https://crosswalk-project.org/documentation/about/faq.html" class="bare">https://crosswalk-project.org/documentation/about/faq.html</a>)
 </div>
-<div class="footnote" id="_footnote_45">
+<div class="footnote" id="_footnotedef_45">
 <a href="#_footnoteref_45">45</a>. <a href="http://community.phonegap.com/nitobi/topics/security-alert-apache-cordova-vulnerabilities-in-your-google-play-app" class="bare">http://community.phonegap.com/nitobi/topics/security-alert-apache-cordova-vulnerabilities-in-your-google-play-app</a>
 </div>
-<div class="footnote" id="_footnote_46">
+<div class="footnote" id="_footnotedef_46">
 <a href="#_footnoteref_46">46</a>. <a href="http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework" class="bare">http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework</a>
 </div>
-<div class="footnote" id="_footnote_47">
+<div class="footnote" id="_footnotedef_47">
 <a href="#_footnoteref_47">47</a>. <a href="https://www.owasp.org/index.php/AppSec_Israel_2014_Presentations#The_Bank_Job_-_Mobile_Edition._Remote_Exploitation_of_the_Cordova_Framework_for_Android" class="bare">https://www.owasp.org/index.php/AppSec_Israel_2014_Presentations#The_Bank_Job_-_Mobile_Edition._Remote_Exploitation_of_the_Cordova_Framework_for_Android</a>
 </div>
-<div class="footnote" id="_footnote_48">
+<div class="footnote" id="_footnotedef_48">
 <a href="#_footnoteref_48">48</a>. "Frame confusion complicates the exploitation of interface-based local-to-Web bridges on some platforms. The ‘stringByEvaluatingJavaScriptFromString’ and ‘WebBrowser.InvokeScript’ functions, used by the framework’s local half on iOS and Windows Phone, respectively, to inject JavaScript into browsers, execute it in the main frame, not the iframe that invoked the bridge (<a href="http://www.cs.utexas.edu/~shmat/shmat_ndss14nofrak.pdf" class="bare">http://www.cs.utexas.edu/~shmat/shmat_ndss14nofrak.pdf</a>)
 </div>
-<div class="footnote" id="_footnote_49">
+<div class="footnote" id="_footnotedef_49">
 <a href="#_footnoteref_49">49</a>. "We currently don&#8217;t know whether to classify this as an implementation error or something closer to "known behavior." This behavior does not seem to be referenced in the apachecordovaphonegap-bypass.txt summary" (<a href="http://openwall.com/lists/oss-security/2014/02/07/9" class="bare">http://openwall.com/lists/oss-security/2014/02/07/9</a>)
 </div>
-<div class="footnote" id="_footnote_50">
+<div class="footnote" id="_footnotedef_50">
 <a href="#_footnoteref_50">50</a>. Cordova の初期化時に config.xml を解析するオブジェクトの実装。オブジェクトの初期化時に <a href="file://*" class="bare">file://*</a>, content://*, data://* をホワイトリストに追加している(<a href="https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVConfigParser.m#L43" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVConfigParser.m#L43</a>)
 </div>
-<div class="footnote" id="_footnote_51">
+<div class="footnote" id="_footnotedef_51">
 <a href="#_footnoteref_51">51</a>. スキームが指定されなかった場合、スキームを http, https としてホワイトリストに2つのエントリーを追加している(<a href="https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVViewController.m#L794" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVViewController.m#L794</a>)
 </div>
-<div class="footnote" id="_footnote_52">
+<div class="footnote" id="_footnotedef_52">
 <a href="#_footnoteref_52">52</a>. ホスト名を抽出する正規表現は *. の後に *. が再度来るケースを想定していないため、*.*.google.comの場合は * がホスト名となってしまう(<a href="https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVWhitelist.m#L172" class="bare">https://github.com/apache/cordova-ios/blob/3.7.x/CordovaLib/Classes/CDVWhitelist.m#L172</a>)
 </div>
-<div class="footnote" id="_footnote_53">
+<div class="footnote" id="_footnotedef_53">
 <a href="#_footnoteref_53">53</a>. <a href="https://www.cs.utexas.edu/~suman/publications/suman_ndss14.pdf" class="bare">https://www.cs.utexas.edu/~suman/publications/suman_ndss14.pdf</a>
 </div>
-<div class="footnote" id="_footnote_54">
+<div class="footnote" id="_footnotedef_54">
 <a href="#_footnoteref_54">54</a>. <a href="https://crosswalk-project.org/documentation/manifest/content_security_policy.html" class="bare">https://crosswalk-project.org/documentation/manifest/content_security_policy.html</a>
 </div>
-<div class="footnote" id="_footnote_55">
+<div class="footnote" id="_footnotedef_55">
 <a href="#_footnoteref_55">55</a>. <a href="http://www.w3.org/TR/CSP/#directive-script-src" class="bare">http://www.w3.org/TR/CSP/#directive-script-src</a>
 </div>
-<div class="footnote" id="_footnote_56">
-<a href="#_footnoteref_56">56</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/29" class="bare">http://seclists.org/fulldisclosure/2014/Mar/29</a>)
+<div class="footnote" id="_footnotedef_56">
+<a href="#_footnoteref_56">56</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/29" class="bare">http://seclists.org/fulldisclosure/2014/Mar/29</a>
 </div>
-<div class="footnote" id="_footnote_57">
-<a href="#_footnoteref_57">57</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/30" class="bare">http://seclists.org/fulldisclosure/2014/Mar/30</a>)
+<div class="footnote" id="_footnotedef_57">
+<a href="#_footnoteref_57">57</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/30" class="bare">http://seclists.org/fulldisclosure/2014/Mar/30</a>
 </div>
-<div class="footnote" id="_footnote_58">
+<div class="footnote" id="_footnotedef_58">
 <a href="#_footnoteref_58">58</a>. <a href="http://d3adend.org/blog/?p=426" class="bare">http://d3adend.org/blog/?p=426</a>
 </div>
-<div class="footnote" id="_footnote_59">
-<a href="#_footnoteref_59">59</a>. <a href="https://issues.apache.org/jira/browse/CB-6851" class="bare">https://issues.apache.org/jira/browse/CB-6851</a>
+<div class="footnote" id="_footnotedef_59">
+<a href="#_footnoteref_59">59</a>. <a href="https://cordova.apache.org/news/2015/09/21/file-transfer-release.html" class="bare">https://cordova.apache.org/news/2015/09/21/file-transfer-release.html</a>
 </div>
-<div class="footnote" id="_footnote_60">
-<a href="#_footnoteref_60">60</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/29" class="bare">http://seclists.org/fulldisclosure/2014/Mar/29</a>
+<div class="footnote" id="_footnotedef_60">
+<a href="#_footnoteref_60">60</a>. <a href="https://issues.apache.org/jira/browse/CB-6851" class="bare">https://issues.apache.org/jira/browse/CB-6851</a>
 </div>
-<div class="footnote" id="_footnote_61">
-<a href="#_footnoteref_61">61</a>. "Code Injection Attacks on HTML5-based Mobile Apps: Characterization, Detection and Mitigation" (<a href="http://www.cis.syr.edu/~wedu/Research/paper/code_injection_ccs2014.pdf" class="bare">http://www.cis.syr.edu/~wedu/Research/paper/code_injection_ccs2014.pdf</a>)
+<div class="footnote" id="_footnotedef_61">
+<a href="#_footnoteref_61">61</a>. <a href="http://seclists.org/fulldisclosure/2014/Mar/29" class="bare">http://seclists.org/fulldisclosure/2014/Mar/29</a>
 </div>
-<div class="footnote" id="_footnote_62">
-<a href="#_footnoteref_62">62</a>. Unraveling some of the Mysteries around DOM-based XSS&#8201;&#8212;&#8201;Client Side Context Sensitive Output Escaping, P21 (<a href="https://www.owasp.org/images/f/f4/ASDC12-Unraveling_some_of_the_Mysteries_around_DOMbased_XSS.pdf" class="bare">https://www.owasp.org/images/f/f4/ASDC12-Unraveling_some_of_the_Mysteries_around_DOMbased_XSS.pdf</a>)
+<div class="footnote" id="_footnotedef_62">
+<a href="#_footnoteref_62">62</a>. "Code Injection Attacks on HTML5-based Mobile Apps: Characterization, Detection and Mitigation" (<a href="http://www.cis.syr.edu/~wedu/Research/paper/code_injection_ccs2014.pdf" class="bare">http://www.cis.syr.edu/~wedu/Research/paper/code_injection_ccs2014.pdf</a>)
 </div>
-<div class="footnote" id="_footnote_63">
-<a href="#_footnoteref_63">63</a>. Complex Contexts (<a href="https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet#Complex_Contexts" class="bare">https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet#Complex_Contexts</a>)
+<div class="footnote" id="_footnotedef_63">
+<a href="#_footnoteref_63">63</a>. Unraveling some of the Mysteries around DOM-based XSS&#8201;&#8212;&#8201;Client Side Context Sensitive Output Escaping, P21 (<a href="https://www.owasp.org/images/f/f4/ASDC12-Unraveling_some_of_the_Mysteries_around_DOMbased_XSS.pdf" class="bare">https://www.owasp.org/images/f/f4/ASDC12-Unraveling_some_of_the_Mysteries_around_DOMbased_XSS.pdf</a>)
 </div>
-<div class="footnote" id="_footnote_64">
-<a href="#_footnoteref_64">64</a>. WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860</a>)
+<div class="footnote" id="_footnotedef_64">
+<a href="#_footnoteref_64">64</a>. Complex Contexts (<a href="https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet#Complex_Contexts" class="bare">https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet#Complex_Contexts</a>)
 </div>
-<div class="footnote" id="_footnote_65">
-<a href="#_footnoteref_65">65</a>. Android 版の Cordova はWebSettings#setSavePassword(false) により、ユーザが入力したパスワードを記録しないように指定しているが、本 API は Android 4.3 で廃止されており、Android 4.4以降ではパスワードの保存を止めることはできない (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L226" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L226</a>)
+<div class="footnote" id="_footnotedef_65">
+<a href="#_footnoteref_65">65</a>. WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860</a>)
 </div>
-<div class="footnote" id="_footnote_66">
-<a href="#_footnoteref_66">66</a>. baseURL が <a href="file:///" class="bare">file:///</a> や nil/NULL の場合、任意のローカルファイルを参照できる。"WebView security on iOS", P.19 (<a href="http://www.slideshare.net/lpilorz/webview-security-on-ios-en" class="bare">http://www.slideshare.net/lpilorz/webview-security-on-ios-en</a>)
+<div class="footnote" id="_footnotedef_66">
+<a href="#_footnoteref_66">66</a>. Android 版の Cordova はWebSettings#setSavePassword(false) により、ユーザが入力したパスワードを記録しないように指定しているが、本 API は Android 4.3 で廃止されており、Android 4.4以降ではパスワードの保存を止めることはできない (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L226" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L226</a>)
 </div>
-<div class="footnote" id="_footnote_67">
-<a href="#_footnoteref_67">67</a>. <a href="https://code.google.com/p/domxsswiki/wiki/HTMLElementSinks" class="bare">https://code.google.com/p/domxsswiki/wiki/HTMLElementSinks</a>
+<div class="footnote" id="_footnotedef_67">
+<a href="#_footnoteref_67">67</a>. baseURL が <a href="file:///" class="bare">file:///</a> や nil/NULL の場合、任意のローカルファイルを参照できる。"WebView security on iOS", P.19 (<a href="http://www.slideshare.net/lpilorz/webview-security-on-ios-en" class="bare">http://www.slideshare.net/lpilorz/webview-security-on-ios-en</a>)
 </div>
-<div class="footnote" id="_footnote_68">
-<a href="#_footnoteref_68">68</a>. <a href="http://api.jquery.com/">jQuery API リファレンス</a>では、XSS を引き起こす可能性のある API には Additional Notes として次のような注意が記載されている。"Do not use these methods to insert strings obtained from untrusted sources such as URL query parameters, cookies, or form inputs. Doing so can introduce cross-site-scripting (XSS) vulnerabilities"
+<div class="footnote" id="_footnotedef_68">
+<a href="#_footnoteref_68">68</a>. <a href="https://code.google.com/p/domxsswiki/wiki/HTMLElementSinks" class="bare">https://code.google.com/p/domxsswiki/wiki/HTMLElementSinks</a>
 </div>
-<div class="footnote" id="_footnote_69">
-<a href="#_footnoteref_69">69</a>. <a href="http://www.html5rocks.com/ja/tutorials/file/filesystem/" class="bare">http://www.html5rocks.com/ja/tutorials/file/filesystem/</a>
+<div class="footnote" id="_footnotedef_69">
+<a href="#_footnoteref_69">69</a>. <a href="http://api.jquery.com/">jQuery API リファレンス</a>では、XSS を引き起こす可能性のある API には Additional Notes として次のような注意が記載されている。"Do not use these methods to insert strings obtained from untrusted sources such as URL query parameters, cookies, or form inputs. Doing so can introduce cross-site-scripting (XSS) vulnerabilities"
 </div>
-<div class="footnote" id="_footnote_70">
-<a href="#_footnoteref_70">70</a>. <a href="http://www.ipa.go.jp/security/vuln/report/JVNiPedia2014q3.html" class="bare">http://www.ipa.go.jp/security/vuln/report/JVNiPedia2014q3.html</a>
+<div class="footnote" id="_footnotedef_70">
+<a href="#_footnoteref_70">70</a>. <a href="http://www.html5rocks.com/ja/tutorials/file/filesystem/" class="bare">http://www.html5rocks.com/ja/tutorials/file/filesystem/</a>
 </div>
-<div class="footnote" id="_footnote_71">
-<a href="#_footnoteref_71">71</a>. <a href="https://www.ipa.go.jp/about/technicalwatch/20120613.html" class="bare">https://www.ipa.go.jp/about/technicalwatch/20120613.html</a>
+<div class="footnote" id="_footnotedef_71">
+<a href="#_footnoteref_71">71</a>. <a href="http://www.ipa.go.jp/security/vuln/report/JVNiPedia2014q3.html" class="bare">http://www.ipa.go.jp/security/vuln/report/JVNiPedia2014q3.html</a>
 </div>
-<div class="footnote" id="_footnote_72">
-<a href="#_footnoteref_72">72</a>. WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している。 (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860</a>)
+<div class="footnote" id="_footnotedef_72">
+<a href="#_footnoteref_72">72</a>. <a href="https://www.ipa.go.jp/about/technicalwatch/20120613.html" class="bare">https://www.ipa.go.jp/about/technicalwatch/20120613.html</a>
 </div>
-<div class="footnote" id="_footnote_73">
-<a href="#_footnoteref_73">73</a>. <a href="https://w3c.github.io/webappsec/specs/mixedcontent/#categories" class="bare">https://w3c.github.io/webappsec/specs/mixedcontent/#categories</a>
+<div class="footnote" id="_footnotedef_73">
+<a href="#_footnoteref_73">73</a>. <a href="https://jvn.jp/jp/JVN48211537/" class="bare">https://jvn.jp/jp/JVN48211537/</a>
 </div>
-<div class="footnote" id="_footnote_74">
-<a href="#_footnoteref_74">74</a>. As can be seen in this listing, the method gets an SslErrorHandler instance named paramSslErrorHandler. The handler calls proceed(), which will ignore any certificate error and the connection will be created. Due to this, any invalid certificate will also be accepted, even the attacker&#8217;s certificate rendering the app vulnerable to man in the middle attacks. Since this issue exists within a login component, it is possible to steal Microsoft account login credentials, which is usually an Outlook.com email address and password. (<a href="https://www.securify.nl/advisory/SFY20140403/outlook_com_for_android_fails_to_validate_server_certificates.html" class="bare">https://www.securify.nl/advisory/SFY20140403/outlook_com_for_android_fails_to_validate_server_certificates.html</a>)
+<div class="footnote" id="_footnotedef_74">
+<a href="#_footnoteref_74">74</a>. WebSettings#setAllowUniversalAccessFromFileURLs に true を指定して、file: の URL から任意のローカルファイルを参照することを許可している。 (<a href="https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860" class="bare">https://github.com/apache/cordova-android/blob/3.7.x/framework/src/org/apache/cordova/CordovaWebView.java#L860</a>)
 </div>
-<div class="footnote" id="_footnote_75">
-<a href="#_footnoteref_75">75</a>. <a href="http://caniuse.com/#feat=stricttransportsecurity" class="bare">http://caniuse.com/#feat=stricttransportsecurity</a>
+<div class="footnote" id="_footnotedef_75">
+<a href="#_footnoteref_75">75</a>. <a href="https://w3c.github.io/webappsec/specs/mixedcontent/#categories" class="bare">https://w3c.github.io/webappsec/specs/mixedcontent/#categories</a>
 </div>
-<div class="footnote" id="_footnote_76">
-<a href="#_footnoteref_76">76</a>. <a href="http://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode%28int%29" class="bare">http://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode%28int%29</a>
+<div class="footnote" id="_footnotedef_76">
+<a href="#_footnoteref_76">76</a>. As can be seen in this listing, the method gets an SslErrorHandler instance named paramSslErrorHandler. The handler calls proceed(), which will ignore any certificate error and the connection will be created. Due to this, any invalid certificate will also be accepted, even the attacker&#8217;s certificate rendering the app vulnerable to man in the middle attacks. Since this issue exists within a login component, it is possible to steal Microsoft account login credentials, which is usually an Outlook.com email address and password. (<a href="https://www.securify.nl/advisory/SFY20140403/outlook_com_for_android_fails_to_validate_server_certificates.html" class="bare">https://www.securify.nl/advisory/SFY20140403/outlook_com_for_android_fails_to_validate_server_certificates.html</a>)
 </div>
-<div class="footnote" id="_footnote_77">
-<a href="#_footnoteref_77">77</a>. Chromium ベースの WebView は、端末のバージョンが Build.VERSIONCODES.JELLYBEAN_MR1 以降であれば、X509TrustManagerExtensions を利用している。(<a href="http://tools.oesf.biz/android-5.0.0_r2.0/xref/external/chromium_org/net/android/java/src/org/chromium/net/X509Util.java#105" class="bare">http://tools.oesf.biz/android-5.0.0_r2.0/xref/external/chromium_org/net/android/java/src/org/chromium/net/X509Util.java#105</a>)
+<div class="footnote" id="_footnotedef_77">
+<a href="#_footnoteref_77">77</a>. <a href="http://caniuse.com/#feat=stricttransportsecurity" class="bare">http://caniuse.com/#feat=stricttransportsecurity</a>
 </div>
-<div class="footnote" id="_footnote_78">
-<a href="#_footnoteref_78">78</a>. Crosswalk も同様に、X509TrustManagerExtensions を用いて、Android が提供する Certificate Pinning を採用している。(<a href="https://github.com/crosswalk-project/chromium-crosswalk/blob/crosswalk-10/38.0.2125.66/net/android/java/src/org/chromium/net/X509Util.java#L105" class="bare">https://github.com/crosswalk-project/chromium-crosswalk/blob/crosswalk-10/38.0.2125.66/net/android/java/src/org/chromium/net/X509Util.java#L105</a>)
+<div class="footnote" id="_footnotedef_78">
+<a href="#_footnoteref_78">78</a>. <a href="http://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode%28int%29" class="bare">http://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode%28int%29</a>
 </div>
-<div class="footnote" id="_footnote_79">
-<a href="#_footnoteref_79">79</a>. X509TrustManagerExtensions&#8201;&#8212;&#8201;The checkServerTrusted method allows callers to perform additional verification of certificate chains after they have been successfully verified by the platform. (<a href="http://developer.android.com/reference/android/net/http/X509TrustManagerExtensions.html" class="bare">http://developer.android.com/reference/android/net/http/X509TrustManagerExtensions.html</a>)
+<div class="footnote" id="_footnotedef_79">
+<a href="#_footnoteref_79">79</a>. Chromium ベースの WebView は、端末のバージョンが Build.VERSIONCODES.JELLYBEAN_MR1 以降であれば、X509TrustManagerExtensions を利用している。(<a href="http://tools.oesf.biz/android-5.0.0_r2.0/xref/external/chromium_org/net/android/java/src/org/chromium/net/X509Util.java#105" class="bare">http://tools.oesf.biz/android-5.0.0_r2.0/xref/external/chromium_org/net/android/java/src/org/chromium/net/X509Util.java#105</a>)
 </div>
-<div class="footnote" id="_footnote_80">
-<a href="#_footnoteref_80">80</a>. <a href="http://www.advtools.com/Products/ADVcertificator.html" class="bare">http://www.advtools.com/Products/ADVcertificator.html</a>
+<div class="footnote" id="_footnotedef_80">
+<a href="#_footnoteref_80">80</a>. Crosswalk も同様に、X509TrustManagerExtensions を用いて、Android が提供する Certificate Pinning を採用している。(<a href="https://github.com/crosswalk-project/chromium-crosswalk/blob/crosswalk-10/38.0.2125.66/net/android/java/src/org/chromium/net/X509Util.java#L105" class="bare">https://github.com/crosswalk-project/chromium-crosswalk/blob/crosswalk-10/38.0.2125.66/net/android/java/src/org/chromium/net/X509Util.java#L105</a>)
 </div>
-<div class="footnote" id="_footnote_81">
-<a href="#_footnoteref_81">81</a>. <a href="http://plugins.cordova.io/#/package/com.synconset.cordovahttp" class="bare">http://plugins.cordova.io/#/package/com.synconset.cordovahttp</a>
+<div class="footnote" id="_footnotedef_81">
+<a href="#_footnoteref_81">81</a>. X509TrustManagerExtensions&#8201;&#8212;&#8201;The checkServerTrusted method allows callers to perform additional verification of certificate chains after they have been successfully verified by the platform. (<a href="http://developer.android.com/reference/android/net/http/X509TrustManagerExtensions.html" class="bare">http://developer.android.com/reference/android/net/http/X509TrustManagerExtensions.html</a>)
 </div>
-<div class="footnote" id="_footnote_82">
-<a href="#_footnoteref_82">82</a>. Clients visiting yahoo.com received advertisements served by ads.yahoo.com. Some of the advertisements are malicious. Those malicious advertisements are iframes hosted on the following domains (<a href="http://blog.fox-it.com/2014/01/03/malicious-advertisements-served-via-yahoo/" class="bare">http://blog.fox-it.com/2014/01/03/malicious-advertisements-served-via-yahoo/</a>)
+<div class="footnote" id="_footnotedef_82">
+<a href="#_footnoteref_82">82</a>. <a href="http://www.advtools.com/Products/ADVcertificator.html" class="bare">http://www.advtools.com/Products/ADVcertificator.html</a>
 </div>
-<div class="footnote" id="_footnote_83">
-<a href="#_footnoteref_83">83</a>. Android を狙うトロイの木馬と連動した Web サイトインジェクション攻撃 (<a href="http://www.symantec.com/connect/blogs/android-web" class="bare">http://www.symantec.com/connect/blogs/android-web</a>)
+<div class="footnote" id="_footnotedef_83">
+<a href="#_footnoteref_83">83</a>. <a href="http://plugins.cordova.io/#/package/com.synconset.cordovahttp" class="bare">http://plugins.cordova.io/#/package/com.synconset.cordovahttp</a>
 </div>
-<div class="footnote" id="_footnote_84">
-<a href="#_footnoteref_84">84</a>. 本調査では、classes.dex 中にorg.apache.cordova.Config.getErrorUrl() メソッドが含まれていない場合に、バージョン 3.5.0 以下と判定した
+<div class="footnote" id="_footnotedef_84">
+<a href="#_footnoteref_84">84</a>. Clients visiting yahoo.com received advertisements served by ads.yahoo.com. Some of the advertisements are malicious. Those malicious advertisements are iframes hosted on the following domains (<a href="http://blog.fox-it.com/2014/01/03/malicious-advertisements-served-via-yahoo/" class="bare">http://blog.fox-it.com/2014/01/03/malicious-advertisements-served-via-yahoo/</a>)
 </div>
-<div class="footnote" id="_footnote_85">
-<a href="#_footnoteref_85">85</a>. config.xml に定義されている初期ページの URL、または、assets 配下の html ファイルの &lt;link&gt;&lt;script&gt;&lt;a&gt;&lt;form&gt; タグの値に http:// もしくは https:// が含まれるアプリは、ネットワークからリソースを取得しているものと判断した
+<div class="footnote" id="_footnotedef_85">
+<a href="#_footnoteref_85">85</a>. Android を狙うトロイの木馬と連動した Web サイトインジェクション攻撃 (<a href="http://www.symantec.com/connect/blogs/android-web" class="bare">http://www.symantec.com/connect/blogs/android-web</a>)
 </div>
-<div class="footnote" id="_footnote_86">
-<a href="#_footnoteref_86">86</a>. APK ファイルに lib/libxwalkcore.so を含むアプリを、Crosswalk を利用するアプリとしてカウントした
+<div class="footnote" id="_footnotedef_86">
+<a href="#_footnoteref_86">86</a>. 本調査では、classes.dex 中にorg.apache.cordova.Config.getErrorUrl() メソッドが含まれていない場合に、バージョン 3.5.0 以下と判定した
 </div>
-<div class="footnote" id="_footnote_87">
-<a href="#_footnoteref_87">87</a>. APK ファイルの assets/www/manifest.json に CSPの宣言があるアプリ数をカウントした
+<div class="footnote" id="_footnotedef_87">
+<a href="#_footnoteref_87">87</a>. config.xml に定義されている初期ページの URL、または、assets 配下の html ファイルの &lt;link&gt;&lt;script&gt;&lt;a&gt;&lt;form&gt; タグの値に http:// もしくは https:// が含まれるアプリは、ネットワークからリソースを取得しているものと判断した
 </div>
-<div class="footnote" id="_footnote_88">
-<a href="#_footnoteref_88">88</a>. <a href="https://developer.mozilla.org/en-US/Apps/Build/Building_apps_for_Firefox_OS/CSP" class="bare">https://developer.mozilla.org/en-US/Apps/Build/Building_apps_for_Firefox_OS/CSP</a>
+<div class="footnote" id="_footnotedef_88">
+<a href="#_footnoteref_88">88</a>. APK ファイルに lib/libxwalkcore.so を含むアプリを、Crosswalk を利用するアプリとしてカウントした
 </div>
-<div class="footnote" id="_footnote_89">
-<a href="#_footnoteref_89">89</a>. <a href="https://developer.chrome.com/apps/contentSecurityPolicy" class="bare">https://developer.chrome.com/apps/contentSecurityPolicy</a>
+<div class="footnote" id="_footnotedef_89">
+<a href="#_footnoteref_89">89</a>. APK ファイルの assets/www/manifest.json に CSPの宣言があるアプリ数をカウントした
 </div>
-<div class="footnote" id="_footnote_90">
-<a href="#_footnoteref_90">90</a>. <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1016421#c0" class="bare">https://bugzilla.mozilla.org/show_bug.cgi?id=1016421#c0</a>
+<div class="footnote" id="_footnotedef_90">
+<a href="#_footnoteref_90">90</a>. <a href="https://developer.mozilla.org/en-US/Apps/Build/Building_apps_for_Firefox_OS/CSP" class="bare">https://developer.mozilla.org/en-US/Apps/Build/Building_apps_for_Firefox_OS/CSP</a>
 </div>
-<div class="footnote" id="_footnote_91">
-<a href="#_footnoteref_91">91</a>. <a href="https://issues.apache.org/jira/browse/CB-7991" class="bare">https://issues.apache.org/jira/browse/CB-7991</a>
+<div class="footnote" id="_footnotedef_91">
+<a href="#_footnoteref_91">91</a>. <a href="https://developer.chrome.com/apps/contentSecurityPolicy" class="bare">https://developer.chrome.com/apps/contentSecurityPolicy</a>
 </div>
-<div class="footnote" id="_footnote_92">
-<a href="#_footnoteref_92">92</a>. たとえば、暗号化鍵の生成には Math.random() ではなく、暗号学的擬似乱数を取得するCrypto.getRandomValues()関数を使用するなど
+<div class="footnote" id="_footnotedef_92">
+<a href="#_footnoteref_92">92</a>. <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1016421#c0" class="bare">https://bugzilla.mozilla.org/show_bug.cgi?id=1016421#c0</a>
 </div>
-<div class="footnote" id="_footnote_93">
-<a href="#_footnoteref_93">93</a>. 3.1.0向けのコミットで、whiteList.add(Pattern.compile("^https?://(.*\.)?" + origin))による前方一致のURLの評価を廃止し、代わりにURLをscheme, host, port, pathに分解し、それぞれを個別に評価するように変更された (<a href="https://github.com/apache/cordova-android/commit/463c7b50277dda5978e2d5e1f1e296ab9e6a6e82" class="bare">https://github.com/apache/cordova-android/commit/463c7b50277dda5978e2d5e1f1e296ab9e6a6e82</a>)
+<div class="footnote" id="_footnotedef_93">
+<a href="#_footnoteref_93">93</a>. <a href="https://issues.apache.org/jira/browse/CB-7991" class="bare">https://issues.apache.org/jira/browse/CB-7991</a>
 </div>
-<div class="footnote" id="_footnote_94">
-<a href="#_footnoteref_94">94</a>. CVE によれば、この脆弱性はバージョン 3.3.0 およびそれ以前の Cordova に影響する。しかし、Git のコミットログによると、バージョン 3.1.0 でホワイトリストの処理が現行のロジックに修正されており、正しくは、バージョン 3.1.0 未満のみに影響すると考えられる。
+<div class="footnote" id="_footnotedef_94">
+<a href="#_footnoteref_94">94</a>. たとえば、暗号化鍵の生成には Math.random() ではなく、暗号学的擬似乱数を取得するCrypto.getRandomValues()関数を使用するなど
 </div>
-<div class="footnote" id="_footnote_95">
-<a href="#_footnoteref_95">95</a>. <a href="http://openwall.com/lists/oss-security/2014/02/07/9" class="bare">http://openwall.com/lists/oss-security/2014/02/07/9</a>
+<div class="footnote" id="_footnotedef_95">
+<a href="#_footnoteref_95">95</a>. 3.1.0向けのコミットで、whiteList.add(Pattern.compile("^https?://(.*\.)?" + origin))による前方一致のURLの評価を廃止し、代わりにURLをscheme, host, port, pathに分解し、それぞれを個別に評価するように変更された (<a href="https://github.com/apache/cordova-android/commit/463c7b50277dda5978e2d5e1f1e296ab9e6a6e82" class="bare">https://github.com/apache/cordova-android/commit/463c7b50277dda5978e2d5e1f1e296ab9e6a6e82</a>)
 </div>
-<div class="footnote" id="_footnote_96">
-<a href="#_footnoteref_96">96</a>. <a href="https://github.com/apache/cordova-android/commit/409b9af3980e136226e78511222885767d0b7253" class="bare">https://github.com/apache/cordova-android/commit/409b9af3980e136226e78511222885767d0b7253</a>
+<div class="footnote" id="_footnotedef_96">
+<a href="#_footnoteref_96">96</a>. CVE によれば、この脆弱性はバージョン 3.3.0 およびそれ以前の Cordova に影響する。しかし、Git のコミットログによると、バージョン 3.1.0 でホワイトリストの処理が現行のロジックに修正されており、正しくは、バージョン 3.1.0 未満のみに影響すると考えられる。
 </div>
-<div class="footnote" id="_footnote_97">
-<a href="#_footnoteref_97">97</a>. CVE-2014-3500: Cordova cross-application scripting via Android intent URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
+<div class="footnote" id="_footnotedef_97">
+<a href="#_footnoteref_97">97</a>. <a href="http://openwall.com/lists/oss-security/2014/02/07/9" class="bare">http://openwall.com/lists/oss-security/2014/02/07/9</a>
 </div>
-<div class="footnote" id="_footnote_98">
-<a href="#_footnoteref_98">98</a>. <a href="http://www.mbsd.jp/Whitepaper/IntentScheme.pdf" class="bare">http://www.mbsd.jp/Whitepaper/IntentScheme.pdf</a>
+<div class="footnote" id="_footnotedef_98">
+<a href="#_footnoteref_98">98</a>. <a href="https://github.com/apache/cordova-android/commit/409b9af3980e136226e78511222885767d0b7253" class="bare">https://github.com/apache/cordova-android/commit/409b9af3980e136226e78511222885767d0b7253</a>
 </div>
-<div class="footnote" id="_footnote_99">
-<a href="#_footnoteref_99">99</a>. <a href="https://github.com/apache/cordova-android/commit/b0b628ffc24bdd952e86908cf6cb4064b6f3c405" class="bare">https://github.com/apache/cordova-android/commit/b0b628ffc24bdd952e86908cf6cb4064b6f3c405</a>
+<div class="footnote" id="_footnotedef_99">
+<a href="#_footnoteref_99">99</a>. CVE-2014-3500: Cordova cross-application scripting via Android intent URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
 </div>
-<div class="footnote" id="_footnote_100">
-<a href="#_footnoteref_100">100</a>. (<a href="https://github.com/apache/cordova-android/commit/6f21a96238a298a94cb66bfa4f2a969f768cea69" class="bare">https://github.com/apache/cordova-android/commit/6f21a96238a298a94cb66bfa4f2a969f768cea69</a>
+<div class="footnote" id="_footnotedef_100">
+<a href="#_footnoteref_100">100</a>. <a href="http://www.mbsd.jp/Whitepaper/IntentScheme.pdf" class="bare">http://www.mbsd.jp/Whitepaper/IntentScheme.pdf</a>
 </div>
-<div class="footnote" id="_footnote_101">
-<a href="#_footnoteref_101">101</a>. CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
+<div class="footnote" id="_footnotedef_101">
+<a href="#_footnoteref_101">101</a>. <a href="https://github.com/apache/cordova-android/commit/b0b628ffc24bdd952e86908cf6cb4064b6f3c405" class="bare">https://github.com/apache/cordova-android/commit/b0b628ffc24bdd952e86908cf6cb4064b6f3c405</a>
 </div>
-<div class="footnote" id="_footnote_102">
-<a href="#_footnoteref_102">102</a>. <a href="http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework" class="bare">http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework</a>
+<div class="footnote" id="_footnotedef_102">
+<a href="#_footnoteref_102">102</a>. (<a href="https://github.com/apache/cordova-android/commit/6f21a96238a298a94cb66bfa4f2a969f768cea69" class="bare">https://github.com/apache/cordova-android/commit/6f21a96238a298a94cb66bfa4f2a969f768cea69</a>
 </div>
-<div class="footnote" id="_footnote_103">
-<a href="#_footnoteref_103">103</a>. <a href="https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-" class="bare">https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-</a><em>Remote_Exploitation_of_Cordova_for_Android</em>-<em>David_Kaplan</em>-_Roee_Hay.pdf
+<div class="footnote" id="_footnotedef_103">
+<a href="#_footnoteref_103">103</a>. CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
 </div>
-<div class="footnote" id="_footnote_104">
-<a href="#_footnoteref_104">104</a>. CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
+<div class="footnote" id="_footnotedef_104">
+<a href="#_footnoteref_104">104</a>. <a href="http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework" class="bare">http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework</a>
 </div>
-<div class="footnote" id="_footnote_105">
-<a href="#_footnoteref_105">105</a>. <a href="http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework" class="bare">http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework</a>
+<div class="footnote" id="_footnotedef_105">
+<a href="#_footnoteref_105">105</a>. <a href="https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-" class="bare">https://www.owasp.org/images/e/e0/AppSecIL_2014_The_Bank_Job_Mobile_Edition_-</a><em>Remote_Exploitation_of_Cordova_for_Android</em>-<em>David_Kaplan</em>-_Roee_Hay.pdf
 </div>
-<div class="footnote" id="_footnote_106">
-<a href="#_footnoteref_106">106</a>. <a href="http://blog.trendmicro.com/trendlabs-security-intelligence/trend-micro-discovers-apache-vulnerability-that-allows-one-click-modification-of-android-apps/" class="bare">http://blog.trendmicro.com/trendlabs-security-intelligence/trend-micro-discovers-apache-vulnerability-that-allows-one-click-modification-of-android-apps/</a>
+<div class="footnote" id="_footnotedef_106">
+<a href="#_footnoteref_106">106</a>. CVE-2014-3501: Cordova whitelist bypass for non-HTTP URLs (<a href="http://cordova.apache.org/announcements/2014/08/04/android-351.html" class="bare">http://cordova.apache.org/announcements/2014/08/04/android-351.html</a>)
 </div>
-<div class="footnote" id="_footnote_107">
-<a href="#_footnoteref_107">107</a>. <a href="https://cordova.apache.org/announcements/2015/05/26/android-402.html" class="bare">https://cordova.apache.org/announcements/2015/05/26/android-402.html</a>
+<div class="footnote" id="_footnotedef_107">
+<a href="#_footnoteref_107">107</a>. <a href="http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework" class="bare">http://www.slideshare.net/ibmsecurity/remote-exploitation-of-the-cordova-framework</a>
+</div>
+<div class="footnote" id="_footnotedef_108">
+<a href="#_footnoteref_108">108</a>. <a href="http://blog.trendmicro.com/trendlabs-security-intelligence/trend-micro-discovers-apache-vulnerability-that-allows-one-click-modification-of-android-apps/" class="bare">http://blog.trendmicro.com/trendlabs-security-intelligence/trend-micro-discovers-apache-vulnerability-that-allows-one-click-modification-of-android-apps/</a>
+</div>
+<div class="footnote" id="_footnotedef_109">
+<a href="#_footnoteref_109">109</a>. <a href="https://cordova.apache.org/announcements/2015/05/26/android-402.html" class="bare">https://cordova.apache.org/announcements/2015/05/26/android-402.html</a>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2015-09-17 05:19:39 JST
+Last updated 2019-02-10 00:59:23 +0900
 </div>
 </div>
 </body>
