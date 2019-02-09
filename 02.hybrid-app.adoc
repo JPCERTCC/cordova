@@ -25,7 +25,7 @@ Cordova を用いたアプリ開発では、通常、1つ以上の Cordovaプラ
 ** 寄贈当初は「Apache Callback」という名称で Apache License 2.0のもと、引き続きオープンソースとして公開される
 ** PhoneGap は Adobe の商標となり、Adobe がリリースする Callback の製品名として使用されるようになる footnote:[http://assignments.uspto.gov/assignments/q?db=tm&qt=sno&reel=&frame=&sno=77786996]
 
-* 2011年、Apache Callback が Apache Cardova に改名される footnote:[http://incubator.apache.org/projects/cordova.html]
+* 2011年、Apache Callback が Apache Cordova に改名される footnote:[http://incubator.apache.org/projects/cordova.html]
 
 
 ==== Cordova の派生製品
